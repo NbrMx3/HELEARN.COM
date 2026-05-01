@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd Healern.com && npm ci && npm run build",
+  "outputDirectory": "Healern.com/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
