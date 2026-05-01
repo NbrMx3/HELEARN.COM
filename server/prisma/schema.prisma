@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User model for OAuth authentication
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String
+  picture   String?
+  phone     String?
+  
+  // OAuth provider info
+  googleId  String?    @unique
+  
+  // Account status
+  verified  Boolean    @default(false)
+  verificationId String? @db.Uuid
+  
+  // Timestamps
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  // Relations
+  verification Verification?
+  
+  @@map("users")
+}
+
+// Verification model for payment and account activation
+model Verification {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @unique
+  phone     String
+  amount    Float
+  
+  // Payment status
+  status    String    @default("pending") // pending, completed, failed
+  paymentRef String?
+  
+  // Timestamps
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("verifications")
+}
+
