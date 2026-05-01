@@ -1,11 +1,12 @@
-import { ArrowLeft, CheckCircle2, LogOut, Smartphone, Zap } from 'lucide-react'
+import { CheckCircle2, LogOut, Smartphone, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { InputField } from '../components/InputField'
-import { clearRegisteredUser, getRegisteredUser, markUserVerified } from '../lib/storage'
+import { useAuth } from '../context/AuthContext'
+import { api } from '../lib/api'
 
 type VerificationFormValues = {
   phone: string
@@ -15,9 +16,11 @@ const phonePattern = /^(?:07\d{8}|2547\d{8})$/
 
 export function Verify() {
   const navigate = useNavigate()
-  const registeredUser = getRegisteredUser()
+  const { user, token, logout, isAuthenticated } = useAuth()
   const [isProcessing, setIsProcessing] = useState(false)
   const [activationMessage, setActivationMessage] = useState<string | null>(null)
+  const [isVerified, setIsVerified] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const {
     register,
@@ -25,39 +28,46 @@ export function Verify() {
     formState: { errors },
   } = useForm<VerificationFormValues>({
     defaultValues: {
-      phone: registeredUser?.phone ?? '',
+      phone: '',
     },
   })
 
-  if (!registeredUser) {
+  if (!isAuthenticated || !user) {
     return <Navigate replace to="/register" />
   }
 
-  const isVerified = registeredUser.verified
-
   const onSubmit = async (values: VerificationFormValues) => {
+    if (!token) return
+
     const normalizedPhone = values.phone.replace(/\s+/g, '')
 
     setIsProcessing(true)
     setActivationMessage(null)
+    setError(null)
 
-    await new Promise((resolve) => window.setTimeout(resolve, 900))
+    try {
+      await new Promise((resolve) => window.setTimeout(resolve, 900))
 
-    console.log('Mock payment request', {
-      phone: normalizedPhone,
-      amount: 100,
-      account: registeredUser.email,
-    })
+      console.log('Mock payment request', {
+        phone: normalizedPhone,
+        amount: 100,
+        account: user.email,
+      })
 
-    const updatedUser = markUserVerified(normalizedPhone)
+      const result = await api.protected.completeVerification(token, normalizedPhone, 100)
 
-    if (updatedUser) {
-      setActivationMessage('Payment received. Account activated successfully.')
-    } else {
-      setActivationMessage('Payment could not be completed. Please try again.')
+      if (result.success) {
+        setActivationMessage('Payment received. Account activated successfully.')
+        setIsVerified(true)
+      } else {
+        setError('Payment could not be completed. Please try again.')
+      }
+    } catch (err) {
+      console.error('Verification error:', err)
+      setError(err instanceof Error ? err.message : 'Payment failed')
+    } finally {
+      setIsProcessing(false)
     }
-
-    setIsProcessing(false)
   }
 
   return (
@@ -74,6 +84,21 @@ export function Verify() {
             </div>
           </header>
 
+          <div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
+            <p className="font-medium text-slate-600">Logged in as:</p>
+            <p className="flex items-center gap-2 text-slate-900">
+              {user.picture && (
+                <img
+                  alt={user.name}
+                  className="h-6 w-6 rounded-full"
+                  src={user.picture}
+                />
+              )}
+              <span className="font-semibold">{user.name}</span>
+            </p>
+            <p className="text-xs text-slate-500">{user.email}</p>
+          </div>
+
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 shadow-sm">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">
               Verification Fee
@@ -88,6 +113,12 @@ export function Verify() {
                 <CheckCircle2 className="h-4 w-4" />
                 {activationMessage}
               </div>
+            </div>
+          ) : null}
+
+          {error ? (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-900">
+              {error}
             </div>
           ) : null}
 
@@ -112,7 +143,12 @@ export function Verify() {
               label="M-PESA Phone Number"
             />
 
-            <Button className="h-12 w-full text-base" loading={isProcessing} type="submit" disabled={isVerified}>
+            <Button
+              className="h-12 w-full text-base"
+              loading={isProcessing}
+              type="submit"
+              disabled={isVerified}
+            >
               {isVerified ? 'Activated' : 'Pay Ksh 100.00 & Activate'}
             </Button>
           </form>
@@ -125,12 +161,12 @@ export function Verify() {
             <p className="mt-2">Accepted formats: 07XXXXXXXX, 2547XXXXXXXX</p>
           </div>
 
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between gap-2">
             <button
-              className="inline-flex items-center gap-1 font-semibold text-slate-500 transition hover:text-slate-700"
+              className="flex-1 inline-flex items-center justify-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
               type="button"
               onClick={() => {
-                clearRegisteredUser()
+                logout()
                 navigate('/', { replace: true })
               }}
             >
@@ -138,16 +174,17 @@ export function Verify() {
               Logout
             </button>
 
-            <button
-              className="inline-flex items-center gap-1 font-semibold text-blue-700 transition hover:text-blue-800"
-              type="button"
-              onClick={() => {
-                navigate('/register')
-              }}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to registration
-            </button>
+            {isVerified && (
+              <button
+                className="flex-1 inline-flex items-center justify-center gap-1 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-2 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl"
+                type="button"
+                onClick={() => {
+                  navigate('/dashboard', { replace: true })
+                }}
+              >
+                Go to Dashboard
+              </button>
+            )}
           </div>
         </div>
       </Card>

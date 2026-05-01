@@ -1,55 +1,49 @@
-import { ArrowRight, Eye, EyeOff, Gift, Lock, Mail, MapPin, Smartphone, UserRound } from 'lucide-react'
+import { Gift, Smartphone } from 'lucide-react'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
-import { InputField } from '../components/InputField'
-import { getRegisteredUser, saveRegisteredUser } from '../lib/storage'
-
-type RegistrationFormValues = {
-  displayName: string
-  email: string
-  phone: string
-  country: string
-  password: string
-  agreeToTerms: boolean
-}
-
-const phonePattern = /^(?:07\d{8}|2547\d{8})$/
+import { useAuth } from '../context/AuthContext'
+import { api } from '../lib/api'
 
 export function Register() {
   const navigate = useNavigate()
-  const registeredUser = getRegisteredUser()
-  const [showPassword, setShowPassword] = useState(false)
+  const { isAuthenticated, login } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<RegistrationFormValues>({
-    defaultValues: {
-      country: 'Kenya',
-      agreeToTerms: true,
-    },
-  })
-
-  if (registeredUser) {
+  if (isAuthenticated) {
     return <Navigate replace to="/verify" />
   }
 
-  const onSubmit = async (values: RegistrationFormValues) => {
-    const payload = saveRegisteredUser({
-      displayName: values.displayName.trim(),
-      email: values.email.trim().toLowerCase(),
-      phone: values.phone.replace(/\s+/g, ''),
-      country: values.country,
-      password: values.password,
-      invitedBy: 'Onlinebusiness',
-    })
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    setIsLoading(true)
+    setError(null)
 
-    console.log('Registration saved', payload)
-    navigate('/verify', { replace: true })
+    try {
+      if (!credentialResponse.credential) {
+        throw new Error('No credential received from Google')
+      }
+
+      const result = await api.auth.googleAuth(credentialResponse.credential)
+
+      if (result.success && result.token && result.user) {
+        login(result.token, result.user)
+        navigate('/verify', { replace: true })
+      } else {
+        setError('Authentication failed. Please try again.')
+      }
+    } catch (err) {
+      console.error('Google auth error:', err)
+      setError(err instanceof Error ? err.message : 'Authentication failed')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleError = () => {
+    setError('Google login failed. Please try again.')
   }
 
   return (
@@ -76,139 +70,45 @@ export function Register() {
             </div>
           </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-            <InputField
-              error={errors.displayName?.message}
-              icon={<UserRound className="h-4 w-4" />}
-              inputProps={{
-                ...register('displayName', {
-                  required: 'Username is required',
-                  minLength: {
-                    value: 2,
-                    message: 'Enter at least 2 characters',
-                  },
-                }),
-                placeholder: 'Your display name',
-                autoComplete: 'name',
-              }}
-              label="Username (display name)"
-            />
+          {error ? (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-900">
+              {error}
+            </div>
+          ) : null}
 
-            <InputField
-              error={errors.email?.message}
-              icon={<Mail className="h-4 w-4" />}
-              inputProps={{
-                ...register('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: 'Enter a valid email address',
-                  },
-                }),
-                placeholder: 'you@email.com',
-                type: 'email',
-                autoComplete: 'email',
-              }}
-              label="Email"
-            />
+          <div className="space-y-4">
+            <div>
+              <p className="mb-3 text-sm font-medium text-slate-600">Sign in with Google</p>
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  text="continue_with"
+                  width="280"
+                />
+              </div>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-2 text-slate-500">Or</span>
+              </div>
+            </div>
 
-            <InputField
-              error={errors.phone?.message}
-              icon={<Smartphone className="h-4 w-4" />}
-              helperText="Use 07XXXXXXXX or 2547XXXXXXXX"
-              inputProps={{
-                ...register('phone', {
-                  required: 'Phone number is required',
-                  pattern: {
-                    value: phonePattern,
-                    message: 'Use a valid Kenyan phone number format',
-                  },
-                }),
-                placeholder: '07XXXXXXXX',
-                inputMode: 'numeric',
-                autoComplete: 'tel',
-              }}
-              label="Phone (M-PESA format)"
-            />
-
-            <InputField
-              as="select"
-              error={errors.country?.message}
-              icon={<MapPin className="h-4 w-4" />}
-              label="Country"
-              selectProps={{ ...register('country', { required: 'Country is required' }) }}
+            <Button
+              className="h-12 w-full text-base"
+              loading={isLoading}
+              disabled={isLoading}
+              onClick={() => setError('Google Sign-in required')}
             >
-              <option value="Kenya">Kenya</option>
-              <option value="Uganda">Uganda</option>
-              <option value="Tanzania">Tanzania</option>
-              <option value="Rwanda">Rwanda</option>
-              <option value="Nigeria">Nigeria</option>
-            </InputField>
-
-            <InputField
-              error={errors.password?.message}
-              icon={<Lock className="h-4 w-4" />}
-              inputProps={{
-                ...register('password', {
-                  required: 'Password is required',
-                  minLength: {
-                    value: 6,
-                    message: 'Password must be at least 6 characters',
-                  },
-                }),
-                placeholder: 'Min. 6 characters',
-                type: showPassword ? 'text' : 'password',
-                autoComplete: 'new-password',
-              }}
-              label="Password"
-              rightSlot={
-                <button
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-                  type="button"
-                  onClick={() => {
-                    setShowPassword((current) => !current)
-                  }}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              }
-            />
-
-            <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-600 shadow-sm">
-              <input
-                className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                type="checkbox"
-                {...register('agreeToTerms', {
-                  required: 'You must agree to the policy',
-                })}
-              />
-              <span>
-                I agree to the{' '}
-                <span className="font-semibold text-blue-700">Terms &amp; No-Refund Policy</span>
-              </span>
-            </label>
-            {errors.agreeToTerms?.message ? (
-              <p className="text-xs font-medium text-rose-600">{errors.agreeToTerms.message}</p>
-            ) : null}
-
-            <Button className="h-12 w-full text-base" loading={isSubmitting} type="submit">
-              Create Account
+              Manual Registration (Coming Soon)
             </Button>
-          </form>
+          </div>
 
-          <footer className="flex items-center justify-between text-sm text-slate-500">
+          <footer className="text-center text-xs text-slate-500">
             <span>© 2026 HELAEARN AGENCY</span>
-            <button
-              className="inline-flex items-center gap-1 font-semibold text-blue-700 transition hover:text-blue-800"
-              type="button"
-              onClick={() => {
-                navigate('/verify')
-              }}
-            >
-              Have an account? Sign in
-              <ArrowRight className="h-4 w-4" />
-            </button>
           </footer>
         </div>
       </Card>
