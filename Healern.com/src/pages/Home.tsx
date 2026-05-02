@@ -1,4 +1,5 @@
 ﻿import { Link } from 'react-router-dom'
+import logoIcon from '../assets/helearn_logo_icon.svg'
 
 export function Home() {
   return (
@@ -8,8 +9,8 @@ export function Home() {
           <div className="mb-6 h-1 w-full rounded-full bg-blue-600" />
 
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-700 text-white shadow-[0_12px_24px_rgba(37,99,235,0.28)]">
-              ⚡
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-blue-700">
+              <img src={logoIcon} alt="Helearn Logo" className="h-10 w-10" />
             </div>
             <div>
               <h1 className="text-lg font-bold tracking-tight text-slate-900">HELAEARN AGENCY</h1>
