@@ -33,7 +33,7 @@ export function Register() {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.14),_transparent_32%),linear-gradient(180deg,_#f9fbff_0%,_#eef3ff_100%)] px-4 py-8 text-slate-900 sm:px-6">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.14),transparent_32%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-4 py-8 text-slate-900 sm:px-6">
       <div className="mx-auto max-w-md">
         <Card className="p-0">
           <div className="border-b border-slate-100 px-5 pt-5 pb-4 sm:px-6">
