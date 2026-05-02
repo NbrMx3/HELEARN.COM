@@ -1,13 +1,10 @@
 {
-  "version": 2,
-  "builds": [
+  "buildCommand": "cd Healern.com && npm run build",
+  "outputDirectory": "Healern.com/dist",
+  "rewrites": [
     {
-      "src": "Healern.com/package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
