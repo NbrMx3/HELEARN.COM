@@ -1,4 +1,13 @@
 {
+  "name": "helearn",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix Healern.com install --include=dev && npm --prefix Healern.com run build && node -e \"const fs=require('fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.cpSync('Healern.com/dist','dist',{recursive:true});\"",
+    "start": "npm --prefix server start"
+  },
+  "engines": {
+    "node": ">=22.0.0 <23.0.0"
+  },
   "dependencies": {
     "lucide-react": "^1.14.0",
     "react-hook-form": "^7.74.0",

@@ -1,0 +1,60 @@
+services:
+  - type: web
+    name: helearn-api
+    runtime: node
+    rootDir: server
+    region: frankfurt
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://helearn-web.onrender.com
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRY
+        value: 7d
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: helearn-db
+          property: connectionString
+
+  - type: web
+    name: helearn-web
+    runtime: static
+    rootDir: Healern.com
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    staticPublishPath: dist
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: NPM_CONFIG_PRODUCTION
+        value: false
+      - key: VITE_API_URL
+        value: https://helearn-api.onrender.com/api
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: helearn-db
+    databaseName: helearn
+    user: helearn
+    region: frankfurt
+    plan: free
+    ipAllowList: []
