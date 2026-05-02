@@ -1,0 +1,19 @@
+<svg viewBox="0 0 160 200" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Helearn Logo Icon</title>
+  <desc>Helearn speech bubble icon with H and sun rays</desc>
+  <rect x="36" y="60" width="88" height="68" rx="16" fill="#1A9E7A" />
+  <path d="M56 128 L44 150 L74 128 Z" fill="#1A9E7A" />
+  <rect x="56" y="75" width="9" height="38" rx="3" fill="#fff" />
+  <rect x="75" y="75" width="9" height="38" rx="3" fill="#fff" />
+  <rect x="56" y="91" width="28" height="8" rx="3" fill="#fff" />
+  <circle cx="110" cy="68" r="10" fill="#E8A020" />
+  <circle cx="110" cy="68" r="6" fill="#1A9E7A" />
+  <line x1="110" y1="54" x2="110" y2="50" stroke="#E8A020" stroke-width="2" stroke-linecap="round" />
+  <line x1="110" y1="82" x2="110" y2="86" stroke="#E8A020" stroke-width="2" stroke-linecap="round" />
+  <line x1="96" y1="68" x2="92" y2="68" stroke="#E8A020" stroke-width="2" stroke-linecap="round" />
+  <line x1="124" y1="68" x2="128" y2="68" stroke="#E8A020" stroke-width="2" stroke-linecap="round" />
+  <line x1="100" y1="58" x2="97" y2="55" stroke="#E8A020" stroke-width="2" stroke-linecap="round" />
+  <line x1="120" y1="78" x2="123" y2="81" stroke="#E8A020" stroke-width="2" stroke-linecap="round" />
+  <line x1="100" y1="78" x2="97" y2="81" stroke="#E8A020" stroke-width="2" stroke-linecap="round" />
+  <line x1="120" y1="58" x2="123" y2="55" stroke="#E8A020" stroke-width="2" stroke-linecap="round" />
+</svg>
