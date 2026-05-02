@@ -6,6 +6,8 @@ import { Card } from '../components/Card'
 import { InputField } from '../components/InputField'
 import { getRegisteredUser, markUserVerified } from '../lib/storage'
 
+const PAYMENT_RECEIVER_NUMBER = '0112267013'
+
 export function Verify() {
   const navigate = useNavigate()
   const registeredUser = getRegisteredUser()
@@ -69,6 +71,9 @@ export function Verify() {
               <p className="text-[12px] font-semibold uppercase tracking-wide text-emerald-600">Verification fee</p>
               <p className="mt-1 text-[34px] font-extrabold leading-none tracking-tight text-slate-900">Ksh100.00</p>
               <p className="text-sm text-slate-500">One-time payment · Instant activation</p>
+              <p className="mt-2 text-[12px] font-semibold text-emerald-700">
+                Payment receiving number: {PAYMENT_RECEIVER_NUMBER}
+              </p>
             </div>
 
             <InputField
@@ -82,6 +87,9 @@ export function Verify() {
             />
 
             <p className="-mt-2 text-center text-[12px] text-slate-400">Accepts: 07XX... · 254XX... · +254X...</p>
+            <p className="-mt-2 text-center text-[12px] font-medium text-slate-500">
+              Payment will be received on {PAYMENT_RECEIVER_NUMBER}
+            </p>
 
             <Button type="submit" className="w-full rounded-2xl" disabled={submitting}>
               <span className="inline-flex items-center gap-2">
