@@ -13,6 +13,7 @@ export function Verify() {
   const registeredUser = getRegisteredUser()
   const [phoneNumber, setPhoneNumber] = useState(registeredUser?.phone ?? '')
   const [submitting, setSubmitting] = useState(false)
+  const [promptSent, setPromptSent] = useState(false)
   const [verified, setVerified] = useState(false)
 
   useEffect(() => {
@@ -30,6 +31,13 @@ export function Verify() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSubmitting(true)
+    setPromptSent(true)
+    setTimeout(() => {
+      setSubmitting(false)
+    }, 900)
+  }
+
+  function handleAuthorizationComplete() {
     markUserVerified(activeUser.phone)
     setVerified(true)
     setTimeout(() => navigate('/'), 0)
@@ -88,12 +96,24 @@ export function Verify() {
 
             <p className="-mt-2 text-center text-[12px] text-slate-400">Accepts: 07XX... · 254XX... · +254X...</p>
             <p className="-mt-2 text-center text-[12px] font-medium text-slate-500">
-              Payment will be received on {PAYMENT_RECEIVER_NUMBER}
+              M-PESA prompt will be sent to {phoneNumber || 'your number'} and received on {PAYMENT_RECEIVER_NUMBER}
             </p>
+
+            {promptSent ? (
+              <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                <p className="font-semibold">Check your phone for the M-PESA prompt</p>
+                <p className="mt-1 text-blue-700">
+                  Authorize the transaction by entering your M-PESA PIN on the popup message.
+                </p>
+                <Button type="button" className="mt-3 w-full rounded-2xl" onClick={handleAuthorizationComplete}>
+                  I have authorized payment
+                </Button>
+              </div>
+            ) : null}
 
             <Button type="submit" className="w-full rounded-2xl" disabled={submitting}>
               <span className="inline-flex items-center gap-2">
-                <LockKeyhole size={16} /> Pay Ksh100.00 & Activate
+                <LockKeyhole size={16} /> {submitting ? 'Sending M-PESA Prompt...' : 'Pay Ksh100.00 & Send Prompt'}
               </span>
             </Button>
 
