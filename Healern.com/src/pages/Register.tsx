@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react'
-import { EyeOff, Mail, Smartphone, User, Globe, Lock, Users } from 'lucide-react'
+import { EyeOff, Globe, Lock, Mail, Smartphone, User, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { InputField } from '../components/InputField'
+import logoIcon from '../assets/helearn_logo_icon.svg'
 import { saveRegisteredUser } from '../lib/storage'
 
 export function Register() {
@@ -33,28 +34,38 @@ export function Register() {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.14),transparent_32%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-4 py-8 text-slate-900 sm:px-6">
-      <div className="mx-auto max-w-[394px] pt-6 sm:pt-10">
-        <Card className="p-0">
-          <div className="border-b border-slate-100 px-5 pt-5 pb-4 sm:px-6">
+    <main className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.14),transparent_34%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-3 py-4 text-slate-900 sm:px-6 lg:px-8">
+      <section className="mx-auto grid min-h-[calc(100dvh-2rem)] w-full max-w-6xl items-center gap-6 sm:min-h-[calc(100dvh-3rem)] lg:grid-cols-[minmax(0,0.75fr)_minmax(520px,720px)] lg:gap-10">
+        <div className="hidden min-w-0 lg:block">
+          <div className="max-w-md">
+            <img src={logoIcon} alt="" className="h-14 w-14 rounded-lg bg-blue-700 p-1.5" />
+            <h1 className="mt-5 text-3xl font-bold leading-tight text-slate-950">HELAEARN AGENCY</h1>
+            <p className="mt-3 text-base leading-7 text-slate-600">
+              Set up your account details and keep your M-PESA number ready for verification.
+            </p>
+          </div>
+        </div>
+
+        <Card className="mx-auto w-full max-w-3xl p-0 lg:mx-0 lg:max-w-none">
+          <div className="border-b border-slate-100 px-4 pb-4 pt-5 sm:px-6">
             <div className="mb-5 h-1 w-full rounded-full bg-blue-600" />
-            <div className="flex items-start gap-3">
-              <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-700 text-white shadow-[0_12px_24px_rgba(37,99,235,0.28)]">
-                ⚡
+            <div className="flex min-w-0 items-start gap-3">
+              <div className="relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-blue-700 shadow-[0_12px_24px_rgba(37,99,235,0.24)]">
+                <img src={logoIcon} alt="" className="h-9 w-9" />
                 <span className="absolute bottom-0 left-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
               </div>
-              <div>
-                <h1 className="text-lg font-bold tracking-tight text-slate-900">HELAEARN AGENCY</h1>
-                <p className="text-sm text-slate-400">Create account · Start earning today</p>
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold leading-tight text-slate-900">HELAEARN AGENCY</h1>
+                <p className="text-sm text-slate-400">Create account - Start earning today</p>
               </div>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 px-5 py-4 sm:px-6">
-            <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] text-emerald-700">
+          <form onSubmit={handleSubmit} className="grid gap-4 px-4 py-4 sm:px-6 md:grid-cols-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] text-emerald-700 md:col-span-2">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
               <span className="font-semibold text-emerald-600">Invited by Onlinebusiness</span>
-              <span className="text-emerald-500">🎁</span>
+              <span className="text-emerald-500">-</span>
               <span className="font-semibold text-emerald-600">Bonus</span>
             </div>
 
@@ -80,7 +91,7 @@ export function Register() {
             />
 
             <InputField
-              label="Phone · M-PESA"
+              label="Phone - M-PESA"
               inputProps={{
                 value: phone,
                 onChange: (event) => setPhone(event.target.value),
@@ -106,6 +117,7 @@ export function Register() {
 
             <InputField
               label="Password"
+              className="md:col-span-2"
               inputProps={{
                 type: 'password',
                 value: password,
@@ -116,34 +128,34 @@ export function Register() {
               rightSlot={<EyeOff size={16} className="text-slate-400" />}
             />
 
-            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/90 px-4 py-3 text-sm text-slate-600">
+            <label className="flex min-w-0 items-start gap-3 rounded-lg border border-slate-200 bg-slate-50/90 px-4 py-3 text-sm text-slate-600 md:col-span-2">
               <input
                 type="checkbox"
                 checked={agree}
                 onChange={(event) => setAgree(event.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
               />
-              <span>
-                I agree to the <span className="font-semibold text-blue-700">Terms</span> &{' '}
+              <span className="min-w-0">
+                I agree to the <span className="font-semibold text-blue-700">Terms</span> and{' '}
                 <span className="font-semibold text-blue-700">No-Refund Policy</span>
               </span>
             </label>
 
-            <Button type="submit" className="w-full rounded-2xl" disabled={!agree || submitting}>
-              <span className="inline-flex items-center gap-2">
-                <Users size={16} /> Create Account
+            <Button type="submit" className="w-full md:col-span-2" disabled={!agree || submitting}>
+              <span className="inline-flex min-w-0 items-center justify-center gap-2">
+                <Users size={16} className="flex-shrink-0" /> Create Account
               </span>
             </Button>
 
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>© 2026 HELEAARN AGENCY</span>
+            <div className="flex flex-col gap-2 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between md:col-span-2">
+              <span>(c) 2026 HELEAARN AGENCY</span>
               <a href="/verify" className="font-medium text-slate-500 hover:text-blue-700">
-                Have an account? Sign In →
+                Have an account? Sign In -&gt;
               </a>
             </div>
           </form>
         </Card>
-      </div>
+      </section>
     </main>
   )
 }

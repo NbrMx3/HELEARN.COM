@@ -1,39 +1,55 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import logoIcon from '../assets/helearn_logo_icon.svg'
 
 export function Home() {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.12),transparent_32%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-4 py-10 text-slate-900 sm:px-6">
-      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-md items-start justify-center pt-12 sm:pt-20">
-        <div className="w-full rounded-[1.75rem] border border-white/80 bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.12)] backdrop-blur-xl">
-          <div className="mb-6 h-1 w-full rounded-full bg-blue-600" />
+    <main className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.12),transparent_34%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-3 py-4 text-slate-900 sm:px-6 lg:px-8">
+      <section className="mx-auto grid min-h-[calc(100dvh-2rem)] w-full max-w-6xl items-center gap-6 sm:min-h-[calc(100dvh-3rem)] lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] lg:gap-10">
+        <div className="hidden min-w-0 lg:block">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-3 rounded-lg bg-white/70 px-3 py-2 text-sm font-semibold text-blue-800 shadow-sm ring-1 ring-blue-100">
+              <img src={logoIcon} alt="" className="h-8 w-8" />
+              HELAEARN AGENCY
+            </div>
 
-          <div className="flex items-start gap-3">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-blue-700">
+            <h1 className="mt-6 max-w-lg text-4xl font-bold leading-tight text-slate-950">
+              Create your account and activate your HELAEARN membership.
+            </h1>
+            <p className="mt-4 max-w-lg text-base leading-7 text-slate-600">
+              Join through your invitation, complete verification, and continue to your member area.
+            </p>
+          </div>
+        </div>
+
+        <div className="mx-auto w-full max-w-[420px] rounded-lg border border-white/80 bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:p-6 lg:mx-0 lg:justify-self-end">
+          <div className="mb-5 h-1 w-full rounded-full bg-blue-600" />
+
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-700">
               <img src={logoIcon} alt="Helearn Logo" className="h-10 w-10" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight text-slate-900">HELAEARN AGENCY</h1>
-              <p className="text-sm text-slate-400">Create account · Start earning today</p>
+            <div className="min-w-0">
+              <h1 className="text-lg font-bold leading-tight text-slate-900">HELAEARN AGENCY</h1>
+              <p className="text-sm text-slate-400">Create account - Start earning today</p>
             </div>
           </div>
 
-          <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700">
+          <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700">
             <span className="font-semibold text-emerald-600">Invited by Onlinebusiness</span>
-            <span className="mx-2 text-emerald-500">•</span>
+            <span className="text-emerald-500">-</span>
             <span className="font-semibold text-emerald-600">Bonus</span>
           </div>
 
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex">
             <Link
               to="/register"
-              className="inline-flex w-36 items-center justify-center rounded-sm bg-[#2f7ca8] px-6 py-2.5 text-[12px] font-medium uppercase tracking-wide text-white shadow-[0_6px_12px_rgba(15,23,42,0.22)] transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[#2a7098] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f7ca8] focus-visible:ring-offset-2"
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-[#2f7ca8] px-6 py-3 text-sm font-semibold uppercase text-white shadow-[0_10px_20px_rgba(15,23,42,0.18)] transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[#2a7098] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f7ca8] focus-visible:ring-offset-2 sm:w-44"
             >
               Join Now
             </Link>
           </div>
         </div>
-      </div>
+      </section>
     </main>
   )
 }

@@ -28,7 +28,7 @@ export function Button({
   return (
     <button
       className={[
-        'inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-70',
+        'inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-lg px-4 py-3 text-center text-sm font-semibold leading-snug transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-70',
         variants[variant],
         className,
       ]
@@ -42,7 +42,7 @@ export function Button({
       ) : icon ? (
         <span>{icon}</span>
       ) : null}
-      <span>{children}</span>
+      <span className="min-w-0 text-wrap">{children}</span>
     </button>
   )
 }

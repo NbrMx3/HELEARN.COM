@@ -37,7 +37,7 @@ export function InputField(props: Props) {
   } = props
 
   const baseControlClasses = [
-    'w-full rounded-2xl border border-slate-200 bg-slate-50/90 px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10',
+    'min-h-12 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50/90 px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 sm:text-sm',
     icon ? 'pl-11' : '',
     rightSlot ? 'pr-12' : '',
     error ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/10' : '',
@@ -46,7 +46,7 @@ export function InputField(props: Props) {
     .join(' ')
 
   return (
-    <label className={['block space-y-2', className].filter(Boolean).join(' ')}>
+    <label className={['block min-w-0 space-y-2', className].filter(Boolean).join(' ')}>
       <span className="text-sm font-medium text-slate-600">{label}</span>
       <div className="relative">
         {icon ? (
