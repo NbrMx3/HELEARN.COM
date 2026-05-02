@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd Healern.com && npm run build",
-  "outputDirectory": "Healern.com/dist",
+  "buildCommand": "cd Healern.com && npm run build && rm -rf ../dist && cp -r dist ../dist",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",
