@@ -6,6 +6,17 @@ export function Home() {
   return (
     <main className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.12),transparent_34%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-3 py-4 text-slate-900 sm:px-6 lg:px-8">
       <section className="mx-auto grid min-h-[calc(100dvh-2rem)] w-full max-w-6xl items-center gap-6 sm:min-h-[calc(100dvh-3rem)] lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] lg:gap-10">
+        {/* Mobile hero: visible on small screens */}
+        <div className="lg:hidden mb-6 px-4">
+          <div className="flex items-center gap-3">
+            <img src={logoIcon} alt="Helearn" className="h-10 w-10" />
+            <div>
+              <h2 className="text-lg font-bold">HELAEARN AGENCY</h2>
+              <p className="text-sm text-slate-500">Learn Swahili — Native tutors, paid teaching</p>
+            </div>
+          </div>
+        </div>
+
         <div className="hidden min-w-0 lg:block">
           <div className="max-w-xl">
             <div className="inline-flex w-full max-w-[520px] items-center justify-center rounded-2xl bg-slate-950 px-6 py-5 shadow-[0_18px_45px_rgba(15,23,42,0.14)] ring-1 ring-slate-900/5">
