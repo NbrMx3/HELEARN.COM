@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { ArrowLeft, LockKeyhole, Smartphone } from 'lucide-react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { Button } from '../components/Button'
@@ -6,17 +6,53 @@ import { Card } from '../components/Card'
 import { InputField } from '../components/InputField'
 import equityLogo from '../assets/equity_logo.svg'
 import logoIcon from '../assets/helearn_logo_icon.svg'
-import { getRegisteredUser, markUserVerified } from '../lib/storage'
+import { clearRegisteredUser, getRegisteredUser, markUserVerified, type RegisteredUser } from '../lib/storage'
 
 const PAYMENT_RECEIVER_NUMBER = '0112267013'
 
 export function Verify() {
   const navigate = useNavigate()
-  const registeredUser = getRegisteredUser()
-  const [phoneNumber, setPhoneNumber] = useState(registeredUser?.phone ?? '')
+  const [registeredUser, setRegisteredUser] = useState<RegisteredUser | null>(null)
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [promptSent, setPromptSent] = useState(false)
   const [verified, setVerified] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [verifying, setVerifying] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadRegisteredUser() {
+      const user = await getRegisteredUser()
+
+      if (cancelled) {
+        return
+      }
+
+      setRegisteredUser(user)
+      setPhoneNumber(user?.phone ?? '')
+      setLoading(false)
+    }
+
+    void loadRegisteredUser()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  if (loading) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.14),transparent_34%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-3 py-4">
+        <Card className="w-full max-w-md p-5 text-center sm:p-6">
+          <p className="text-sm font-semibold uppercase text-blue-600">Loading verification</p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-900">Fetching your account</h2>
+          <p className="mt-2 text-sm text-slate-500">Please wait while we load your registration from the database.</p>
+        </Card>
+      </main>
+    )
+  }
 
   if (!registeredUser) {
     return <Navigate to="/register" replace />
@@ -33,10 +69,25 @@ export function Verify() {
     }, 900)
   }
 
-  function handleAuthorizationComplete() {
-    markUserVerified(activeUser.phone)
-    setVerified(true)
-    setTimeout(() => navigate('/'), 0)
+  async function handleAuthorizationComplete() {
+    if (verifying) {
+      return
+    }
+
+    setVerifying(true)
+
+    try {
+      const updatedUser = await markUserVerified(activeUser.phone)
+
+      if (!updatedUser) {
+        return
+      }
+
+      setVerified(true)
+      setTimeout(() => navigate('/'), 0)
+    } finally {
+      setVerifying(false)
+    }
   }
 
   if (verified) {
@@ -118,8 +169,8 @@ export function Verify() {
                   <p className="mt-1 leading-6 text-blue-700">
                     Authorize the transaction by entering your M-PESA PIN on the popup message.
                   </p>
-                  <Button type="button" className="mt-3 w-full" onClick={handleAuthorizationComplete}>
-                    I have authorized payment
+                  <Button type="button" className="mt-3 w-full" onClick={handleAuthorizationComplete} disabled={verifying}>
+                    {verifying ? 'Completing verification...' : 'I have authorized payment'}
                   </Button>
                 </div>
               ) : null}
@@ -133,7 +184,10 @@ export function Verify() {
 
               <button
                 type="button"
-                onClick={() => navigate('/')}
+                onClick={() => {
+                  clearRegisteredUser()
+                  navigate('/')
+                }}
                 className="mx-auto flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-medium text-slate-400 hover:bg-white/70 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 <ArrowLeft size={14} /> Logout

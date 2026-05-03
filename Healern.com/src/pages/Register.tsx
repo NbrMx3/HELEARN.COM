@@ -18,20 +18,25 @@ export function Register() {
   const [agree, setAgree] = useState(true)
   const [submitting, setSubmitting] = useState(false)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSubmitting(true)
 
-    saveRegisteredUser({
-      displayName,
-      email,
-      phone,
-      country,
-      password,
-      invitedBy: 'Onlinebusiness',
-    })
+    try {
+      await saveRegisteredUser({
+        displayName,
+        email,
+        phone,
+        country,
+        password,
+        invitedBy: 'Onlinebusiness',
+      })
 
-    navigate('/verify')
+      navigate('/verify')
+    } catch (error) {
+      console.error(error)
+      setSubmitting(false)
+    }
   }
 
   return (

@@ -10,58 +10,108 @@ export type RegisteredUser = {
   verifiedAt?: string
 }
 
-const STORAGE_KEY = 'helearn:registered-user'
+const STORAGE_KEY = 'helearn:registered-phone'
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? 'http://localhost:3001/api'
 
-function readJson<T>(key: string): T | null {
+function readStoredPhone() {
   if (typeof window === 'undefined') {
     return null
   }
 
-  const value = window.localStorage.getItem(key)
+  return window.localStorage.getItem(STORAGE_KEY)
+}
 
-  if (!value) {
+function storePhone(phone: string) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.setItem(STORAGE_KEY, phone)
+}
+
+function clearPhone() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.removeItem(STORAGE_KEY)
+}
+
+async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers)
+
+  if (!headers.has('Content-Type') && init?.body) {
+    headers.set('Content-Type', 'application/json')
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...init,
+    headers,
+  })
+
+  if (!response.ok) {
+    let message = 'Request failed'
+
+    try {
+      const error = (await response.json()) as { error?: string }
+      if (error.error) {
+        message = error.error
+      }
+    } catch {
+      message = response.statusText || message
+    }
+
+    throw new Error(message)
+  }
+
+  try {
+    return (await response.json()) as T
+  } catch {
+    throw new Error('Invalid response from server')
+  }
+}
+
+export function getStoredRegisteredPhone() {
+  return readStoredPhone()
+}
+
+export async function getRegisteredUser() {
+  const phone = readStoredPhone()
+
+  if (!phone) {
     return null
   }
 
   try {
-    return JSON.parse(value) as T
+    return await requestJson<RegisteredUser>(`/users/${encodeURIComponent(phone)}`)
   } catch {
     return null
   }
 }
 
-export function getRegisteredUser() {
-  return readJson<RegisteredUser>(STORAGE_KEY)
-}
+export async function saveRegisteredUser(user: Omit<RegisteredUser, 'verified' | 'createdAt'>) {
+  const payload = await requestJson<RegisteredUser>('/users', {
+    method: 'POST',
+    body: JSON.stringify(user),
+  })
 
-export function saveRegisteredUser(user: Omit<RegisteredUser, 'verified' | 'createdAt'>) {
-  const payload: RegisteredUser = {
-    ...user,
-    verified: false,
-    createdAt: new Date().toISOString(),
-  }
-
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+  storePhone(payload.phone)
   return payload
 }
 
-export function markUserVerified(phone: string) {
-  const currentUser = getRegisteredUser()
+export async function markUserVerified(phone: string) {
+  try {
+    const updatedUser = await requestJson<RegisteredUser>(`/users/${encodeURIComponent(phone)}/verify`, {
+      method: 'PATCH',
+    })
 
-  if (!currentUser || currentUser.phone !== phone) {
+    storePhone(updatedUser.phone)
+    return updatedUser
+  } catch {
     return null
   }
-
-  const updatedUser: RegisteredUser = {
-    ...currentUser,
-    verified: true,
-    verifiedAt: new Date().toISOString(),
-  }
-
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser))
-  return updatedUser
 }
 
 export function clearRegisteredUser() {
-  window.localStorage.removeItem(STORAGE_KEY)
+  clearPhone()
 }
