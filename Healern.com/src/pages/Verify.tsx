@@ -127,7 +127,7 @@ export function Verify() {
               <Button type="submit" className="w-full" disabled={submitting}>
                 <span className="inline-flex min-w-0 items-center justify-center gap-2">
                   <LockKeyhole size={16} className="flex-shrink-0" />
-                  {submitting ? 'Sending M-PESA Prompt...' : 'Pay Ksh100.00 and Send Prompt'}
+                  {submitting ? 'Sending M-PESA Prompt...' : 'Pay Ksh100.00 to 0112267013 and Send Prompt'}
                 </span>
               </Button>
 
