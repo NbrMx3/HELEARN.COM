@@ -4,6 +4,7 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { InputField } from '../components/InputField'
+import equityLogo from '../assets/equity_logo.svg'
 import logoIcon from '../assets/helearn_logo_icon.svg'
 import { getRegisteredUser, markUserVerified } from '../lib/storage'
 
@@ -72,13 +73,25 @@ export function Verify() {
           </div>
 
           <form onSubmit={handleSubmit} className="grid gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[minmax(240px,0.9fr)_minmax(0,1.1fr)]">
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-4 text-emerald-700 lg:self-start">
-              <p className="text-[12px] font-semibold uppercase text-emerald-600">Verification fee</p>
-              <p className="mt-1 text-4xl font-extrabold leading-none text-slate-900 sm:text-[42px]">Ksh100.00</p>
-              <p className="mt-2 text-sm text-slate-500">One-time payment - Instant activation</p>
-              <p className="mt-3 break-words text-[12px] font-semibold text-emerald-700">
-                Payment receiving number: {PAYMENT_RECEIVER_NUMBER}
-              </p>
+            <div className="space-y-3 lg:self-start">
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-4 text-emerald-700">
+                <p className="text-[12px] font-semibold uppercase text-emerald-600">Verification fee</p>
+                <p className="mt-1 text-4xl font-extrabold leading-none text-slate-900 sm:text-[42px]">Ksh100.00</p>
+                <p className="mt-2 text-sm text-slate-500">One-time payment - Instant activation</p>
+                <p className="mt-3 break-words text-[12px] font-semibold text-emerald-700">
+                  Payment receiving number: {PAYMENT_RECEIVER_NUMBER}
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-red-100 bg-white px-4 py-3 shadow-sm">
+                <div className="flex min-w-0 items-center gap-3">
+                  <img src={equityLogo} alt="Equity" className="h-12 w-24 flex-shrink-0 object-contain" />
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-semibold uppercase text-red-700">Equity account</p>
+                    <p className="text-sm font-semibold leading-5 text-slate-800">Pay Ksh100.00 to the Equity account</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="min-w-0 space-y-4">
