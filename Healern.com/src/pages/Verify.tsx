@@ -79,7 +79,7 @@ export function Verify() {
                 <p className="mt-1 text-4xl font-extrabold leading-none text-slate-900 sm:text-[42px]">Ksh100.00</p>
                 <p className="mt-2 text-sm text-slate-500">One-time payment - Instant activation</p>
                 <p className="mt-3 break-words text-[12px] font-semibold text-emerald-700">
-                  Payment receiving number: {PAYMENT_RECEIVER_NUMBER}
+                  Pay to: {PAYMENT_RECEIVER_NUMBER}
                 </p>
               </div>
 
@@ -88,7 +88,7 @@ export function Verify() {
                   <img src={equityLogo} alt="Equity" className="h-12 w-24 flex-shrink-0 object-contain" />
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold uppercase text-red-700">Equity account</p>
-                    <p className="text-sm font-semibold leading-5 text-slate-800">Pay Ksh100.00 to the Equity account</p>
+                    <p className="text-sm font-semibold leading-5 text-slate-800">Pay Ksh100.00 to {PAYMENT_RECEIVER_NUMBER}</p>
                   </div>
                 </div>
               </div>
@@ -108,8 +108,7 @@ export function Verify() {
               <div className="space-y-1 text-center text-[12px] leading-5">
                 <p className="text-slate-400">Accepts: 07XX... - 254XX... - +254X...</p>
                 <p className="font-medium text-slate-500">
-                  M-PESA prompt will be sent to {phoneNumber || 'your number'} and received on{' '}
-                  {PAYMENT_RECEIVER_NUMBER}
+                  M-PESA prompt will be sent to {phoneNumber || 'your number'} and paid to {PAYMENT_RECEIVER_NUMBER}
                 </p>
               </div>
 
