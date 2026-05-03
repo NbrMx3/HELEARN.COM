@@ -4,7 +4,7 @@ import swahiliLogo from '../assets/helearn_swahili_logo.svg'
 
 export function Home() {
   return (
-    <main className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.12),transparent_34%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-3 py-4 text-slate-900 sm:px-6 lg:px-8">
+    <main className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.12),transparent_34%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-3 py-4 text-slate-900 dark:text-slate-100 sm:px-6 lg:px-8">
       <section className="mx-auto grid min-h-[calc(100dvh-2rem)] w-full max-w-6xl items-center gap-6 sm:min-h-[calc(100dvh-3rem)] lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] lg:gap-10">
         {/* Mobile hero: visible on small screens */}
         <div className="lg:hidden mb-6 px-4">
@@ -32,7 +32,7 @@ export function Home() {
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-[420px] rounded-lg border border-white/80 bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:p-6 lg:mx-0 lg:justify-self-end">
+        <div className="mx-auto w-full max-w-[420px] rounded-lg border border-white/80 bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:p-6 lg:mx-0 lg:justify-self-end dark:bg-slate-900/70 dark:border-slate-800/60 dark:shadow-none">
           <div className="mb-5 h-1 w-full rounded-full bg-blue-600" />
 
           <div className="flex min-w-0 items-start gap-3">
@@ -40,8 +40,8 @@ export function Home() {
               <img src={logoIcon} alt="Helearn Logo" className="h-10 w-10" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-lg font-bold leading-tight text-slate-900">HELAEARN AGENCY</h1>
-              <p className="text-sm text-slate-400">Create account - Start earning today</p>
+              <h1 className="text-lg font-bold leading-tight text-slate-900 dark:text-slate-100">HELAEARN AGENCY</h1>
+              <p className="text-sm text-slate-400 dark:text-slate-400">Create account - Start earning today</p>
             </div>
           </div>
 

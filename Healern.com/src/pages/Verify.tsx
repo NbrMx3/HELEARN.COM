@@ -47,8 +47,8 @@ export function Verify() {
       <main className="flex min-h-dvh items-center justify-center bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.14),transparent_34%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-3 py-4">
         <Card className="w-full max-w-md p-5 text-center sm:p-6">
           <p className="text-sm font-semibold uppercase text-blue-600">Loading verification</p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">Fetching your account</h2>
-          <p className="mt-2 text-sm text-slate-500">Please wait while we load your registration from the database.</p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">Fetching your account</h2>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Please wait while we load your registration from the database.</p>
         </Card>
       </main>
     )
@@ -95,8 +95,8 @@ export function Verify() {
       <main className="flex min-h-dvh items-center justify-center bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.14),transparent_34%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-3 py-4">
         <Card className="w-full max-w-md p-5 text-center sm:p-6">
           <p className="text-sm font-semibold uppercase text-emerald-600">Verification complete</p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">Account activated</h2>
-          <p className="mt-2 text-sm text-slate-500">You can now continue to the dashboard.</p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">Account activated</h2>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">You can now continue to the dashboard.</p>
           <Button className="mt-6 w-full" onClick={() => navigate('/')}>
             Return Home
           </Button>
@@ -106,7 +106,7 @@ export function Verify() {
   }
 
   return (
-    <main className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.14),transparent_34%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-3 py-4 text-slate-900 sm:px-6 lg:px-8">
+    <main className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.14),transparent_34%),linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] px-3 py-4 text-slate-900 dark:text-slate-100 sm:px-6 lg:px-8">
       <section className="mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-4xl items-center sm:min-h-[calc(100dvh-3rem)]">
         <Card className="mx-auto w-full p-0">
           <div className="border-b border-slate-100 px-4 pb-4 pt-5 sm:px-6">
