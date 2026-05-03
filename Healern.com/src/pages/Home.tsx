@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import logoIcon from '../assets/helearn_logo_icon.svg'
+import swahiliLogo from '../assets/helearn_swahili_logo.svg'
 
 export function Home() {
   return (
@@ -7,12 +8,11 @@ export function Home() {
       <section className="mx-auto grid min-h-[calc(100dvh-2rem)] w-full max-w-6xl items-center gap-6 sm:min-h-[calc(100dvh-3rem)] lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] lg:gap-10">
         <div className="hidden min-w-0 lg:block">
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-3 rounded-lg bg-white/70 px-3 py-2 text-sm font-semibold text-blue-800 shadow-sm ring-1 ring-blue-100">
-              <img src={logoIcon} alt="" className="h-8 w-8" />
-              HELAEARN AGENCY
+            <div className="inline-flex w-full max-w-[520px] items-center justify-center rounded-2xl bg-slate-950 px-6 py-5 shadow-[0_18px_45px_rgba(15,23,42,0.14)] ring-1 ring-slate-900/5">
+              <img src={swahiliLogo} alt="Helearn logo" className="h-auto w-full max-w-[460px]" />
             </div>
 
-            <h1 className="mt-6 max-w-lg text-4xl font-bold leading-tight text-slate-950">
+            <h1 className="mt-8 max-w-lg text-4xl font-bold leading-tight text-slate-950">
               Create your account and activate your HELAEARN membership.
             </h1>
             <p className="mt-4 max-w-lg text-base leading-7 text-slate-600">
