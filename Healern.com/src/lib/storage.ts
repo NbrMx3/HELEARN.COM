@@ -115,3 +115,24 @@ export async function markUserVerified(phone: string) {
 export function clearRegisteredUser() {
   clearPhone()
 }
+
+const THEME_KEY = 'helearn:theme-mode'
+export type ThemeMode = 'light' | 'dark' | 'system'
+
+export function getStoredTheme(): ThemeMode | null {
+  if (typeof window === 'undefined') return null
+  const v = window.localStorage.getItem(THEME_KEY)
+  if (!v) return null
+  if (v === 'dark' || v === 'light' || v === 'system') return v
+  return null
+}
+
+export function storeTheme(mode: ThemeMode) {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(THEME_KEY, mode)
+}
+
+export function clearStoredTheme() {
+  if (typeof window === 'undefined') return
+  window.localStorage.removeItem(THEME_KEY)
+}

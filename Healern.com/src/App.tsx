@@ -3,6 +3,7 @@ import { Home } from './pages/Home'
 import { Register } from './pages/Register'
 import { Verify } from './pages/Verify'
 import { useEffect } from 'react'
+import { ThemeToggle } from './components/ThemeToggle'
 
 export default function App() {
   const navigate = useNavigate()
@@ -125,11 +126,17 @@ export default function App() {
   }, [location.pathname, navigate])
 
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/verify" element={<Verify />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <div className="min-h-screen">
+      <header className="pointer-events-auto fixed right-4 top-4 z-50"> 
+        <ThemeToggle />
+      </header>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/verify" element={<Verify />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
   )
 }
