@@ -12,7 +12,7 @@ export type RegisteredUser = {
 
 const STORAGE_KEY = 'helearn:registered-phone'
 const STORAGE_USER_KEY = 'helearn:registered-user'
-const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? 'http://localhost:3001/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? 'https://helearn-api.onrender.com/api'
 
 function readStoredPhone() {
   if (typeof window === 'undefined') {
