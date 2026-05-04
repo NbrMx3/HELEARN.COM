@@ -83,8 +83,8 @@ export function Home() {
             </Link>
           </div>
           <p className="mt-3 text-sm text-slate-600">
-            Reach us through WhatsApp{' '}
-            <a href="https://wa.me/254112267013" className="font-semibold text-[#0b2e6d]">+254112267013</a>
+            For any assistance, feel free to contact us on WhatsApp{' '}
+            <a href="https://wa.me/254112267013" className="font-semibold text-[#0b2e6d]">+254112267013</a>.
           </p>
         </div>
       </section>
