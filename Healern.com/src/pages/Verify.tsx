@@ -190,7 +190,7 @@ export function Verify() {
                 }}
                 className="mx-auto flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-bold text-[#4c1d95] hover:bg-white/70 hover:text-[#3b0764] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
-                <ArrowLeft size={14} /> Logout
+                <ArrowLeft size={26} /> Logout
               </button>
             </div>
           </form>
