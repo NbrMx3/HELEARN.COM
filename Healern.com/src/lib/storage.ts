@@ -11,6 +11,7 @@ export type RegisteredUser = {
 }
 
 const STORAGE_KEY = 'helearn:registered-phone'
+const STORAGE_USER_KEY = 'helearn:registered-user'
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? 'http://localhost:3001/api'
 
 function readStoredPhone() {
@@ -27,6 +28,33 @@ function storePhone(phone: string) {
   }
 
   window.localStorage.setItem(STORAGE_KEY, phone)
+}
+
+function readStoredUser() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const rawUser = window.localStorage.getItem(STORAGE_USER_KEY)
+
+  if (!rawUser) {
+    return null
+  }
+
+  try {
+    return JSON.parse(rawUser) as RegisteredUser
+  } catch {
+    return null
+  }
+}
+
+function storeUser(user: RegisteredUser) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user))
+  storePhone(user.phone)
 }
 
 function clearPhone() {
@@ -71,6 +99,14 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
+function buildLocalRegisteredUser(user: Omit<RegisteredUser, 'verified' | 'createdAt'>, verified = false): RegisteredUser {
+  return {
+    ...user,
+    verified,
+    createdAt: new Date().toISOString(),
+  }
+}
+
 export function getStoredRegisteredPhone() {
   return readStoredPhone()
 }
@@ -79,24 +115,30 @@ export async function getRegisteredUser() {
   const phone = readStoredPhone()
 
   if (!phone) {
-    return null
+    return readStoredUser()
   }
 
   try {
     return await requestJson<RegisteredUser>(`/users/${encodeURIComponent(phone)}`)
   } catch {
-    return null
+    return readStoredUser()
   }
 }
 
 export async function saveRegisteredUser(user: Omit<RegisteredUser, 'verified' | 'createdAt'>) {
-  const payload = await requestJson<RegisteredUser>('/users', {
-    method: 'POST',
-    body: JSON.stringify(user),
-  })
+  try {
+    const payload = await requestJson<RegisteredUser>('/users', {
+      method: 'POST',
+      body: JSON.stringify(user),
+    })
 
-  storePhone(payload.phone)
-  return payload
+    storeUser(payload)
+    return payload
+  } catch {
+    const localUser = buildLocalRegisteredUser(user)
+    storeUser(localUser)
+    return localUser
+  }
 }
 
 export async function markUserVerified(phone: string) {
@@ -105,34 +147,29 @@ export async function markUserVerified(phone: string) {
       method: 'PATCH',
     })
 
-    storePhone(updatedUser.phone)
+    storeUser(updatedUser)
     return updatedUser
   } catch {
-    return null
+    const localUser = readStoredUser()
+
+    if (!localUser || localUser.phone !== phone) {
+      return null
+    }
+
+    const updatedLocalUser: RegisteredUser = {
+      ...localUser,
+      verified: true,
+      verifiedAt: new Date().toISOString(),
+    }
+
+    storeUser(updatedLocalUser)
+    return updatedLocalUser
   }
 }
 
 export function clearRegisteredUser() {
   clearPhone()
-}
-
-const THEME_KEY = 'helearn:theme-mode'
-export type ThemeMode = 'light' | 'dark' | 'system'
-
-export function getStoredTheme(): ThemeMode | null {
-  if (typeof window === 'undefined') return null
-  const v = window.localStorage.getItem(THEME_KEY)
-  if (!v) return null
-  if (v === 'dark' || v === 'light' || v === 'system') return v
-  return null
-}
-
-export function storeTheme(mode: ThemeMode) {
-  if (typeof window === 'undefined') return
-  window.localStorage.setItem(THEME_KEY, mode)
-}
-
-export function clearStoredTheme() {
-  if (typeof window === 'undefined') return
-  window.localStorage.removeItem(THEME_KEY)
+  if (typeof window !== 'undefined') {
+    window.localStorage.removeItem(STORAGE_USER_KEY)
+  }
 }
