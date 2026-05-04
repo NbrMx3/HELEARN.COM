@@ -10,6 +10,32 @@ export type RegisteredUser = {
   verifiedAt?: string
 }
 
+export type MpesaStkPushRequest = {
+  registeredPhone: string
+  payerPhone: string
+  amount: number
+  accountReference?: string
+  transactionDesc?: string
+}
+
+export type MpesaStkPushResponse = {
+  success: boolean
+  message: string
+  checkoutRequestId?: string
+  merchantRequestId?: string
+}
+
+export type MpesaPaymentStatus = {
+  success: boolean
+  verified: boolean
+  paymentStatus: string | null
+  message: string
+  receiptNumber?: string | null
+  amount?: number | null
+  payerPhone?: string | null
+  registeredPhone?: string | null
+}
+
 const STORAGE_KEY = 'helearn:registered-phone'
 const STORAGE_USER_KEY = 'helearn:registered-user'
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? 'https://helearn-api.onrender.com/api'
@@ -165,6 +191,17 @@ export async function markUserVerified(phone: string) {
     storeUser(updatedLocalUser)
     return updatedLocalUser
   }
+}
+
+export async function initiateMpesaStkPush(request: MpesaStkPushRequest) {
+  return requestJson<MpesaStkPushResponse>('/mpesa/stkpush', {
+    method: 'POST',
+    body: JSON.stringify(request),
+  })
+}
+
+export async function getMpesaPaymentStatus(registeredPhone: string) {
+  return requestJson<MpesaPaymentStatus>(`/mpesa/status/${encodeURIComponent(registeredPhone)}`)
 }
 
 export function clearRegisteredUser() {

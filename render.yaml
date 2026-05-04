@@ -20,6 +20,18 @@ services:
         generateValue: true
       - key: JWT_EXPIRY
         value: 7d
+      - key: DARAJA_BASE_URL
+        value: https://sandbox.safaricom.co.ke
+      - key: DARAJA_CONSUMER_KEY
+        sync: false
+      - key: DARAJA_CONSUMER_SECRET
+        sync: false
+      - key: DARAJA_SHORTCODE
+        sync: false
+      - key: DARAJA_PASSKEY
+        sync: false
+      - key: DARAJA_CALLBACK_URL
+        value: https://helearn-api.onrender.com/api/mpesa/callback
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET

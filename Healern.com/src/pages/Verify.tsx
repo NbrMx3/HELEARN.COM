@@ -6,9 +6,16 @@ import { Card } from '../components/Card'
 import { InputField } from '../components/InputField'
 import equityLogo from '../assets/equity_logo.svg'
 import logoIcon from '../assets/helearn_logo_icon.svg'
-import { clearRegisteredUser, getRegisteredUser, markUserVerified, type RegisteredUser } from '../lib/storage'
+import {
+  clearRegisteredUser,
+  getMpesaPaymentStatus,
+  getRegisteredUser,
+  initiateMpesaStkPush,
+  type RegisteredUser,
+} from '../lib/storage'
 
 const PAYMENT_RECEIVER_NUMBER = '0112267013'
+const VERIFICATION_AMOUNT = 100
 
 export function Verify() {
   const navigate = useNavigate()
@@ -19,6 +26,8 @@ export function Verify() {
   const [verified, setVerified] = useState(false)
   const [loading, setLoading] = useState(true)
   const [verifying, setVerifying] = useState(false)
+  const [paymentMessage, setPaymentMessage] = useState('')
+  const [paymentError, setPaymentError] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -62,11 +71,34 @@ export function Verify() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    if (submitting) {
+      return
+    }
+
     setSubmitting(true)
-    setPromptSent(true)
-    setTimeout(() => {
-      setSubmitting(false)
-    }, 900)
+    setPaymentMessage('')
+    setPaymentError('')
+
+    void (async () => {
+      try {
+        const response = await initiateMpesaStkPush({
+          registeredPhone: activeUser.phone,
+          payerPhone: phoneNumber,
+          amount: VERIFICATION_AMOUNT,
+          accountReference: activeUser.phone,
+          transactionDesc: 'HELAEARN verification fee',
+        })
+
+        setPromptSent(true)
+        setPaymentMessage(response.message || 'M-PESA prompt sent. Approve it on your phone to continue.')
+      } catch (error) {
+        setPromptSent(false)
+        setPaymentError(error instanceof Error ? error.message : 'Failed to send the M-PESA prompt')
+      } finally {
+        setSubmitting(false)
+      }
+    })()
   }
 
   async function handleAuthorizationComplete() {
@@ -75,16 +107,20 @@ export function Verify() {
     }
 
     setVerifying(true)
+    setPaymentError('')
 
     try {
-      const updatedUser = await markUserVerified(activeUser.phone)
+      const status = await getMpesaPaymentStatus(activeUser.phone)
 
-      if (!updatedUser) {
+      if (!status.verified) {
+        setPaymentMessage(status.message || 'Payment is still processing. Try again in a few seconds.')
         return
       }
 
       setVerified(true)
       setTimeout(() => navigate('/'), 0)
+    } catch (error) {
+      setPaymentError(error instanceof Error ? error.message : 'Unable to verify payment status')
     } finally {
       setVerifying(false)
     }
@@ -127,7 +163,7 @@ export function Verify() {
             <div className="space-y-3 lg:self-start">
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-4 text-emerald-700">
                 <p className="text-[12px] font-semibold uppercase text-emerald-600">Verification fee</p>
-                <p className="mt-1 text-4xl font-extrabold leading-none text-slate-900 sm:text-[42px]">Ksh100.00</p>
+                <p className="mt-1 text-4xl font-extrabold leading-none text-slate-900 sm:text-[42px]">Ksh{VERIFICATION_AMOUNT}.00</p>
                 <p className="mt-2 text-sm text-slate-500">One-time payment - Instant activation</p>
                 <p className="mt-3 wrap-break-word text-[12px] font-semibold text-emerald-700">
                   Pay to: {PAYMENT_RECEIVER_NUMBER}
@@ -163,6 +199,18 @@ export function Verify() {
                 </p>
               </div>
 
+              {paymentMessage ? (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  {paymentMessage}
+                </div>
+              ) : null}
+
+              {paymentError ? (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {paymentError}
+                </div>
+              ) : null}
+
               {promptSent ? (
                 <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
                   <p className="font-semibold">Check your phone for the M-PESA prompt</p>
@@ -170,7 +218,7 @@ export function Verify() {
                     Authorize the transaction by entering your M-PESA PIN on the popup message.
                   </p>
                   <Button type="button" className="mt-3 w-full" onClick={handleAuthorizationComplete} disabled={verifying}>
-                    {verifying ? 'Completing verification...' : 'I have authorized payment'}
+                    {verifying ? 'Checking payment status...' : 'I have authorized payment'}
                   </Button>
                 </div>
               ) : null}
@@ -178,7 +226,7 @@ export function Verify() {
               <Button type="submit" className="w-full" disabled={submitting}>
                 <span className="inline-flex min-w-0 items-center justify-center gap-2">
                   <LockKeyhole size={16} className="shrink-0" />
-                  {submitting ? 'Sending M-PESA Prompt...' : 'Pay Ksh100.00 to 0112267013 and Send Prompt'}
+                  {submitting ? 'Sending M-PESA Prompt...' : `Pay Ksh${VERIFICATION_AMOUNT}.00 and Send Prompt`}
                 </span>
               </Button>
 
