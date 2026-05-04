@@ -82,6 +82,10 @@ export function Home() {
               Join Now
             </Link>
           </div>
+          <p className="mt-3 text-sm text-slate-600">
+            Reach us through WhatsApp{' '}
+            <a href="https://wa.me/254112267013" className="font-semibold text-[#0b2e6d]">+254112267013</a>
+          </p>
         </div>
       </section>
     </main>
