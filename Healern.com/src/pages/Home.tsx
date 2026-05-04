@@ -69,6 +69,9 @@ export function Home() {
                 <span className="cursor-pointer transition-colors duration-200 hover:text-[#061a42] hover:underline">DRC.Congo</span>
               </span>
             </p>
+            <p className="mt-2 text-sm font-semibold text-slate-700">
+              Regulated by EastAfrican Trade Custom Union
+            </p>
           </div>
 
           <div className="mt-6 flex">
