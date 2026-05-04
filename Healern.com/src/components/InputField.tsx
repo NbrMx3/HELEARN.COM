@@ -38,7 +38,6 @@ export function InputField(props: Props) {
 
   const baseControlClasses = [
     'min-h-12 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50/90 px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 sm:text-sm',
-    'dark:bg-slate-800/60 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:bg-slate-900',
     icon ? 'pl-11' : '',
     rightSlot ? 'pr-12' : '',
     error ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/10' : '',

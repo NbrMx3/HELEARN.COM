@@ -5,7 +5,8 @@
   "scripts": {
     "build": "node --check src/index.js",
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test:daraja": "node test-daraja-flow.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

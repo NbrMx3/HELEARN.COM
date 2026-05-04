@@ -193,6 +193,19 @@ app.get('/health', (req, res) => {
 	res.json({ status: 'Server is running' })
 })
 
+// Temporary debug endpoint to inspect Daraja env var presence (masked)
+app.get('/api/debug/env', (req, res) => {
+	const mask = (v) => (v ? `${v.slice(0, 4)}...(${v.length})` : null)
+	return res.json({
+		daraja_base_url: process.env.DARAJA_BASE_URL || null,
+		daraja_consumer_key: mask(process.env.DARAJA_CONSUMER_KEY || ''),
+		daraja_consumer_secret: process.env.DARAJA_CONSUMER_SECRET ? '***' : null,
+		daraja_shortcode: process.env.DARAJA_SHORTCODE || null,
+		daraja_passkey: process.env.DARAJA_PASSKEY ? '***' : null,
+		daraja_callback_url: process.env.DARAJA_CALLBACK_URL || null,
+	})
+})
+
 app.post('/api/mpesa/stkpush', async (req, res) => {
 	const { registeredPhone, payerPhone, amount, accountReference, transactionDesc } = req.body ?? {}
 	const normalizedRegisteredPhone = String(registeredPhone ?? '').trim()

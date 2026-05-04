@@ -32,35 +32,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Simple dark overrides for key surfaces so Tailwind utility colors remain readable */
-:root {
-  --bg: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --card: rgba(255,255,255,0.95);
-}
-
-.dark {
-  --bg: #071025;
-  --text: #e6eef8;
-  --muted: #93a1b5;
-  --card: rgba(7,16,37,0.6);
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-}
-
-/* Card surfaces commonly used in the UI */
-.card, .bg-card {
-  background: var(--card);
-}
-
-.muted, .text-muted {
-  color: var(--muted) !important;
-}
-
 button,
 input,
 select,

@@ -10,8 +10,8 @@ const variants = {
   primary:
     'bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white shadow-[0_18px_35px_rgba(37,99,235,0.26)] hover:shadow-[0_22px_42px_rgba(37,99,235,0.32)]',
   secondary:
-    'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 dark:hover:bg-slate-700',
-  ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800',
+    'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200',
+  ghost: 'bg-transparent text-slate-600 hover:bg-slate-100',
 }
 
 export function Button({
