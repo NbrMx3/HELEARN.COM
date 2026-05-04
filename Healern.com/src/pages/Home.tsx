@@ -59,7 +59,15 @@ export function Home() {
             </p>
             <p className="mt-3 text-base font-bold text-slate-800">
               East African countries:{' '}
-              <span className="text-[#0b2e6d]">Kenya, Tanzania, Uganda, Rwanda, Burundi, S.Sudan, DRC.Congo</span>
+              <span className="text-[#0b2e6d]">
+                <span className="cursor-pointer transition-colors duration-200 hover:text-[#061a42] hover:underline">Kenya</span>,{' '}
+                <span className="cursor-pointer transition-colors duration-200 hover:text-[#061a42] hover:underline">Tanzania</span>,{' '}
+                <span className="cursor-pointer transition-colors duration-200 hover:text-[#061a42] hover:underline">Uganda</span>,{' '}
+                <span className="cursor-pointer transition-colors duration-200 hover:text-[#061a42] hover:underline">Rwanda</span>,{' '}
+                <span className="cursor-pointer transition-colors duration-200 hover:text-[#061a42] hover:underline">Burundi</span>,{' '}
+                <span className="cursor-pointer transition-colors duration-200 hover:text-[#061a42] hover:underline">S.Sudan</span>,{' '}
+                <span className="cursor-pointer transition-colors duration-200 hover:text-[#061a42] hover:underline">DRC.Congo</span>
+              </span>
             </p>
           </div>
 
