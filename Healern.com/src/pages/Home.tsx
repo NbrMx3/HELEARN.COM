@@ -58,7 +58,8 @@ export function Home() {
               Learn from native speakers. Earn from your language skills. All in one place.
             </p>
             <p className="mt-3 text-base font-bold text-slate-800">
-              East African countries: Kenya, Tanzania, Uganda, Rwanda, Burundi, S.Sudan, DRC.Congo
+              East African countries:{' '}
+              <span className="text-[#0b2e6d]">Kenya, Tanzania, Uganda, Rwanda, Burundi, S.Sudan, DRC.Congo</span>
             </p>
           </div>
 
