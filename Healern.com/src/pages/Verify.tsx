@@ -118,7 +118,7 @@ export function Verify() {
               </div>
               <div className="min-w-0">
                 <h1 className="text-lg font-bold leading-tight text-slate-900">HELAEARN AGENCY</h1>
-                <p className="text-sm text-[#0b1f4d]">Account verification</p>
+                <p className="text-sm text-[#051a4a]">Account verification</p>
               </div>
             </div>
           </div>
