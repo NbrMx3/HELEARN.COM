@@ -57,7 +57,7 @@ export function Home() {
               Helearn is an online platform where qualified tutors teach Swahili to foreigners worldwide - and get paid for it.
               Learn from native speakers. Earn from your language skills. All in one place.
             </p>
-            <p className="mt-3 text-sm font-medium text-slate-700">
+            <p className="mt-3 text-base font-bold text-slate-800">
               East African countries: Kenya, Tanzania, Uganda, Rwanda, Burundi, S.Sudan, DRC.Congo
             </p>
           </div>
