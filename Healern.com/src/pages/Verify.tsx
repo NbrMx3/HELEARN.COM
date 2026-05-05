@@ -16,8 +16,20 @@ import {
 } from '../lib/storage'
 
 const PAYMENT_RECEIVER_NUMBER = '0112267013'
-const PAYMENT_RECEIVER_MSISDN = '+254112267013'
+const DEFAULT_COUNTRY_CODE = '+254'
+const COUNTRY_DIAL_CODES: Record<string, string> = {
+  kenya: '+254',
+  uganda: '+256',
+  tanzania: '+255',
+  rwanda: '+250',
+}
 const VERIFICATION_AMOUNT = 100
+
+function getReceiverInternationalNumber(country?: string) {
+  const baseNumber = PAYMENT_RECEIVER_NUMBER.replace(/^0+/, '')
+  const dialCode = COUNTRY_DIAL_CODES[String(country ?? '').trim().toLowerCase()] ?? DEFAULT_COUNTRY_CODE
+  return `${dialCode}${baseNumber}`
+}
 
 export function Verify() {
   const navigate = useNavigate()
@@ -75,6 +87,7 @@ export function Verify() {
   }
 
   const activeUser = registeredUser
+  const paymentReceiverMsisdn = getReceiverInternationalNumber(activeUser.country)
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -184,7 +197,7 @@ export function Verify() {
                 <div className="mt-3 flex items-center gap-3 rounded-lg border border-emerald-300 bg-white/90 p-2">
                   <img src={mpesaLogo} alt="M-PESA" className="h-14 w-14 shrink-0 rounded-full" />
                   <p className="text-[33px] font-black leading-[1.05] tracking-tight text-emerald-800">
-                    Send money directly to {PAYMENT_RECEIVER_MSISDN}
+                    Send money directly to {paymentReceiverMsisdn}
                   </p>
                 </div>
               </div>
@@ -195,7 +208,7 @@ export function Verify() {
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold uppercase text-red-700">Equity account</p>
                     <p className="text-sm font-semibold leading-5 text-slate-800">Pay Ksh100.00 to {PAYMENT_RECEIVER_NUMBER}</p>
-                    <p className="text-xs font-semibold leading-5 text-red-700">Send money directly to {PAYMENT_RECEIVER_MSISDN}</p>
+                    <p className="text-xs font-semibold leading-5 text-red-700">Send money directly to {paymentReceiverMsisdn}</p>
                   </div>
                 </div>
               </div>
