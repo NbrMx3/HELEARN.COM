@@ -6,6 +6,7 @@ import { Card } from '../components/Card'
 import { InputField } from '../components/InputField'
 import equityLogo from '../assets/equity_logo.svg'
 import logoIcon from '../assets/helearn_logo_icon.svg'
+import mpesaLogo from '../assets/mpesa_logo.svg'
 import {
   clearRegisteredUser,
   getMpesaPaymentStatus,
@@ -180,9 +181,12 @@ export function Verify() {
                 <p className="mt-3 wrap-break-word text-[12px] font-semibold text-emerald-700">
                   Pay to: {PAYMENT_RECEIVER_NUMBER}
                 </p>
-                <p className="mt-2 rounded-md border border-emerald-300 bg-white/80 px-2 py-1 text-[12px] font-semibold text-emerald-800">
-                  Send money directly to {PAYMENT_RECEIVER_MSISDN}
-                </p>
+                <div className="mt-3 flex items-center gap-3 rounded-lg border border-emerald-300 bg-white/90 p-2">
+                  <img src={mpesaLogo} alt="M-PESA" className="h-14 w-14 shrink-0 rounded-full" />
+                  <p className="text-[40px] font-black leading-[1.05] tracking-tight text-emerald-800">
+                    Send money directly to {PAYMENT_RECEIVER_MSISDN}
+                  </p>
+                </div>
               </div>
 
               <div className="rounded-lg border border-red-100 bg-white px-4 py-3 shadow-sm">
