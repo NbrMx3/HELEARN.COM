@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Eye, EyeOff, Globe, Lock, Mail, Smartphone, User, Users } from 'lucide-react'
+import { Eye, EyeOff, Globe, IdCard, Lock, Mail, Smartphone, User, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
@@ -11,6 +11,7 @@ export function Register() {
   const navigate = useNavigate()
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
+  const [idNumber, setIdNumber] = useState('')
   const [phone, setPhone] = useState('')
   const [country, setCountry] = useState('Kenya')
   const [password, setPassword] = useState('')
@@ -30,13 +31,14 @@ export function Register() {
     const payload = {
       displayName: displayName.trim(),
       email: email.trim(),
+      idNumber: idNumber.trim(),
       phone: phone.trim(),
       country: country.trim(),
       password,
       invitedBy: 'Onlinebusiness',
     }
 
-    if (!payload.displayName || !payload.email || !payload.phone || !payload.country || !payload.password) {
+    if (!payload.displayName || !payload.email || !payload.idNumber || !payload.phone || !payload.country || !payload.password) {
       setFormError('Please fill in all required fields before continuing.')
       return
     }
@@ -133,6 +135,17 @@ export function Register() {
                 required: true,
               }}
               icon={<Smartphone size={16} />}
+            />
+
+            <InputField
+              label="Applicant ID Number"
+              inputProps={{
+                value: idNumber,
+                onChange: (event) => setIdNumber(event.target.value),
+                placeholder: 'National ID / Passport No.',
+                required: true,
+              }}
+              icon={<IdCard size={16} />}
             />
 
             <InputField

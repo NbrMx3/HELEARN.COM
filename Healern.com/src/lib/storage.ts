@@ -1,6 +1,7 @@
 export type RegisteredUser = {
   displayName: string
   email: string
+  idNumber: string
   phone: string
   country: string
   password: string

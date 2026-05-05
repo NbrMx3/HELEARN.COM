@@ -29,6 +29,7 @@ async function initializeDatabase() {
 			phone TEXT PRIMARY KEY,
 			display_name TEXT NOT NULL,
 			email TEXT NOT NULL,
+			id_number TEXT,
 			country TEXT NOT NULL,
 			password TEXT NOT NULL,
 			invited_by TEXT NOT NULL,
@@ -37,6 +38,11 @@ async function initializeDatabase() {
 			verified_at TIMESTAMPTZ,
 			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 		)
+	`)
+
+	await pool.query(`
+		ALTER TABLE registered_users
+		ADD COLUMN IF NOT EXISTS id_number TEXT
 	`)
 
 	await pool.query(`
@@ -191,6 +197,7 @@ function mapRegisteredUser(row) {
 	return {
 		displayName: row.display_name,
 		email: row.email,
+		idNumber: row.id_number,
 		phone: row.phone,
 		country: row.country,
 		password: row.password,
@@ -437,9 +444,9 @@ app.post('/api/mpesa/callback', async (req, res) => {
 })
 
 app.post('/api/users', async (req, res) => {
-	const { displayName, email, phone, country, password, invitedBy } = req.body ?? {}
+	const { displayName, email, idNumber, phone, country, password, invitedBy } = req.body ?? {}
 
-	if (!displayName || !email || !phone || !country || !password || !invitedBy) {
+	if (!displayName || !email || !idNumber || !phone || !country || !password || !invitedBy) {
 		return res.status(400).json({ error: 'Missing required registration fields' })
 	}
 
@@ -449,16 +456,18 @@ app.post('/api/users', async (req, res) => {
 				phone,
 				display_name,
 				email,
+				id_number,
 				country,
 				password,
 				invited_by,
 				verified,
 				verified_at,
 				updated_at
-			) VALUES ($1, $2, $3, $4, $5, $6, FALSE, NULL, NOW())
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE, NULL, NOW())
 			ON CONFLICT (phone) DO UPDATE SET
 				display_name = EXCLUDED.display_name,
 				email = EXCLUDED.email,
+				id_number = EXCLUDED.id_number,
 				country = EXCLUDED.country,
 				password = EXCLUDED.password,
 				invited_by = EXCLUDED.invited_by,
@@ -466,7 +475,7 @@ app.post('/api/users', async (req, res) => {
 				verified_at = NULL,
 				updated_at = NOW()
 			RETURNING *`,
-			[phone, displayName, email, country, password, invitedBy],
+			[phone, displayName, email, idNumber, country, password, invitedBy],
 		)
 
 		res.status(201).json(mapRegisteredUser(result.rows[0]))
