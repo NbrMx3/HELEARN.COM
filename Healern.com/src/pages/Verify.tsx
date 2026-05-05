@@ -29,6 +29,11 @@ export function Verify() {
   const [paymentMessage, setPaymentMessage] = useState('')
   const [paymentError, setPaymentError] = useState('')
 
+  function isValidPhoneNumber(value: string) {
+    const digits = value.replace(/\D/g, '')
+    return digits.length === 10 || digits.length === 12
+  }
+
   useEffect(() => {
     let cancelled = false
 
@@ -79,6 +84,12 @@ export function Verify() {
     setSubmitting(true)
     setPaymentMessage('')
     setPaymentError('')
+
+    if (!isValidPhoneNumber(phoneNumber)) {
+      setPaymentError('Enter a valid M-PESA phone number (07XXXXXXXX or 254XXXXXXXXX).')
+      setSubmitting(false)
+      return
+    }
 
     void (async () => {
       try {

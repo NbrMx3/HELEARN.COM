@@ -241,7 +241,15 @@ app.post('/api/mpesa/stkpush', async (req, res) => {
 	}
 
 	if (!DARAJA_SHORTCODE || !DARAJA_PASSKEY || !DARAJA_CALLBACK_URL) {
-		return res.status(500).json({ error: 'Daraja configuration is incomplete' })
+		const missingConfig = [
+			!DARAJA_SHORTCODE ? 'DARAJA_SHORTCODE' : null,
+			!DARAJA_PASSKEY ? 'DARAJA_PASSKEY' : null,
+			!DARAJA_CALLBACK_URL ? 'DARAJA_CALLBACK_URL' : null,
+		].filter(Boolean)
+
+		return res.status(503).json({
+			error: `Daraja configuration is incomplete. Missing: ${missingConfig.join(', ')}`,
+		})
 	}
 
 	try {

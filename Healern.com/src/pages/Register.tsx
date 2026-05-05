@@ -17,24 +17,50 @@ export function Register() {
   const [showPassword, setShowPassword] = useState(false)
   const [agree, setAgree] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [formError, setFormError] = useState('')
+
+  function isValidPhoneNumber(value: string) {
+    const digits = value.replace(/\D/g, '')
+    return digits.length === 10 || digits.length === 12
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    const payload = {
+      displayName: displayName.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      country: country.trim(),
+      password,
+      invitedBy: 'Onlinebusiness',
+    }
+
+    if (!payload.displayName || !payload.email || !payload.phone || !payload.country || !payload.password) {
+      setFormError('Please fill in all required fields before continuing.')
+      return
+    }
+
+    if (payload.password.length < 6) {
+      setFormError('Password must be at least 6 characters long.')
+      return
+    }
+
+    if (!isValidPhoneNumber(payload.phone)) {
+      setFormError('Enter a valid M-PESA phone number (07XXXXXXXX or 254XXXXXXXXX).')
+      return
+    }
+
+    setFormError('')
     setSubmitting(true)
 
     try {
-      await saveRegisteredUser({
-        displayName,
-        email,
-        phone,
-        country,
-        password,
-        invitedBy: 'Onlinebusiness',
-      })
+      await saveRegisteredUser(payload)
 
       navigate('/verify')
     } catch (error) {
       console.error(error)
+      setFormError(error instanceof Error ? error.message : 'Unable to create account right now.')
       setSubmitting(false)
     }
   }
@@ -56,7 +82,7 @@ export function Register() {
           <div className="border-b border-slate-100 px-4 pb-4 pt-5 sm:px-6">
             <div className="mb-5 h-1 w-full rounded-full bg-blue-600" />
             <div className="flex min-w-0 items-start gap-3">
-              <div className="relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-blue-700 shadow-[0_12px_24px_rgba(37,99,235,0.24)]">
+              <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-700 shadow-[0_12px_24px_rgba(37,99,235,0.24)]">
                 <img src={logoIcon} alt="" className="h-9 w-9" />
                 <span className="absolute bottom-0 left-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
               </div>
@@ -81,6 +107,7 @@ export function Register() {
                 value: displayName,
                 onChange: (event) => setDisplayName(event.target.value),
                 placeholder: 'Your display name',
+                required: true,
               }}
               icon={<User size={16} />}
             />
@@ -92,6 +119,7 @@ export function Register() {
                 value: email,
                 onChange: (event) => setEmail(event.target.value),
                 placeholder: 'you@email.com',
+                required: true,
               }}
               icon={<Mail size={16} />}
             />
@@ -102,6 +130,7 @@ export function Register() {
                 value: phone,
                 onChange: (event) => setPhone(event.target.value),
                 placeholder: '07XXXXXXXX',
+                required: true,
               }}
               icon={<Smartphone size={16} />}
             />
@@ -129,6 +158,8 @@ export function Register() {
                 value: password,
                 onChange: (event) => setPassword(event.target.value),
                 placeholder: 'Min. 6 characters',
+                required: true,
+                minLength: 6,
               }}
               icon={<Lock size={16} />}
               rightSlot={
@@ -150,7 +181,7 @@ export function Register() {
                 type="checkbox"
                 checked={agree}
                 onChange={(event) => setAgree(event.target.checked)}
-                className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="min-w-0">
                 I agree to the <span className="font-semibold text-blue-700">Terms</span> and{' '}
@@ -160,9 +191,15 @@ export function Register() {
 
             <Button type="submit" className="w-full md:col-span-2" disabled={!agree || submitting}>
               <span className="inline-flex min-w-0 items-center justify-center gap-2">
-                <Users size={16} className="flex-shrink-0" /> Create Account
+                <Users size={16} className="shrink-0" /> Create Account
               </span>
             </Button>
+
+            {formError ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 md:col-span-2">
+                {formError}
+              </div>
+            ) : null}
 
             <div className="flex flex-col gap-2 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between md:col-span-2">
               <span>(c) 2026 HELEAARN AGENCY</span>
