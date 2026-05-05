@@ -110,6 +110,26 @@ function parseMpesaTransactionDate(value) {
 let cachedDarajaToken = null
 let cachedDarajaTokenExpiry = 0
 
+function extractDarajaErrorMessage(error, fallbackMessage) {
+	if (!axios.isAxiosError(error)) {
+		return fallbackMessage
+	}
+
+	const responseBody = error.response?.data
+	const darajaMessage =
+		responseBody?.errorMessage ||
+		responseBody?.ResponseDescription ||
+		responseBody?.error ||
+		error.message ||
+		fallbackMessage
+
+	if (error.response?.status) {
+		return `${fallbackMessage} (${error.response.status}): ${darajaMessage}`
+	}
+
+	return `${fallbackMessage}: ${darajaMessage}`
+}
+
 async function getDarajaAccessToken() {
 	if (!DARAJA_CONSUMER_KEY || !DARAJA_CONSUMER_SECRET) {
 		throw new Error('Daraja credentials are not configured')
@@ -119,17 +139,21 @@ async function getDarajaAccessToken() {
 		return cachedDarajaToken
 	}
 
-	const credentials = Buffer.from(`${DARAJA_CONSUMER_KEY}:${DARAJA_CONSUMER_SECRET}`).toString('base64')
-	const response = await axios.get(`${DARAJA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials`, {
-		headers: {
-			Authorization: `Basic ${credentials}`,
-		},
-	})
+	try {
+		const credentials = Buffer.from(`${DARAJA_CONSUMER_KEY}:${DARAJA_CONSUMER_SECRET}`).toString('base64')
+		const response = await axios.get(`${DARAJA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials`, {
+			headers: {
+				Authorization: `Basic ${credentials}`,
+			},
+		})
 
-	cachedDarajaToken = response.data.access_token
-	cachedDarajaTokenExpiry = Date.now() + (Number(response.data.expires_in ?? 0) - 60) * 1000
+		cachedDarajaToken = response.data.access_token
+		cachedDarajaTokenExpiry = Date.now() + (Number(response.data.expires_in ?? 0) - 60) * 1000
 
-	return cachedDarajaToken
+		return cachedDarajaToken
+	} catch (error) {
+		throw new Error(extractDarajaErrorMessage(error, 'Failed to generate Daraja OAuth token'))
+	}
 }
 
 async function markRegisteredUserVerified(registeredPhone) {
@@ -291,8 +315,9 @@ app.post('/api/mpesa/stkpush', async (req, res) => {
 			checkoutRequestId: darajaResponse.data.CheckoutRequestID,
 		})
 	} catch (error) {
-		console.error('Daraja STK push failed:', error)
-		return res.status(500).json({ error: 'Unable to initiate M-PESA payment' })
+		const message = extractDarajaErrorMessage(error, 'Unable to initiate M-PESA payment')
+		console.error('Daraja STK push failed:', message)
+		return res.status(502).json({ error: message })
 	}
 })
 
