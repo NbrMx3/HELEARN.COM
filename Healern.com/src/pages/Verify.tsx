@@ -15,6 +15,7 @@ import {
 } from '../lib/storage'
 
 const PAYMENT_RECEIVER_NUMBER = '0112267013'
+const PAYMENT_RECEIVER_MSISDN = '+254112267013'
 const VERIFICATION_AMOUNT = 100
 
 export function Verify() {
@@ -179,6 +180,9 @@ export function Verify() {
                 <p className="mt-3 wrap-break-word text-[12px] font-semibold text-emerald-700">
                   Pay to: {PAYMENT_RECEIVER_NUMBER}
                 </p>
+                <p className="mt-2 rounded-md border border-emerald-300 bg-white/80 px-2 py-1 text-[12px] font-semibold text-emerald-800">
+                  Send money directly to {PAYMENT_RECEIVER_MSISDN}
+                </p>
               </div>
 
               <div className="rounded-lg border border-red-100 bg-white px-4 py-3 shadow-sm">
@@ -187,6 +191,7 @@ export function Verify() {
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold uppercase text-red-700">Equity account</p>
                     <p className="text-sm font-semibold leading-5 text-slate-800">Pay Ksh100.00 to {PAYMENT_RECEIVER_NUMBER}</p>
+                    <p className="text-xs font-semibold leading-5 text-red-700">Send money directly to {PAYMENT_RECEIVER_MSISDN}</p>
                   </div>
                 </div>
               </div>
