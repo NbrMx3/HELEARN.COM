@@ -183,7 +183,7 @@ export function Verify() {
                 </p>
                 <div className="mt-3 flex items-center gap-3 rounded-lg border border-emerald-300 bg-white/90 p-2">
                   <img src={mpesaLogo} alt="M-PESA" className="h-14 w-14 shrink-0 rounded-full" />
-                  <p className="text-[40px] font-black leading-[1.05] tracking-tight text-emerald-800">
+                  <p className="text-[35px] font-black leading-[1.05] tracking-tight text-emerald-800">
                     Send money directly to {PAYMENT_RECEIVER_MSISDN}
                   </p>
                 </div>
