@@ -6,6 +6,7 @@
   "scripts": {
     "predev": "node ../scripts/free-ports.mjs 5173",
     "dev": "vite",
+    "browser:clean": "node ../scripts/open-clean-browser.mjs http://localhost:5173",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

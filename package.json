@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "build": "npm --prefix Healern.com install --include=dev && npm --prefix Healern.com run build && node -e \"const fs=require('fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.cpSync('Healern.com/dist','dist',{recursive:true});\"",
-    "start": "npm --prefix server start"
+    "start": "npm --prefix server start",
+    "browser:clean": "node scripts/open-clean-browser.mjs http://localhost:5173"
   },
   "engines": {
     "node": ">=22.0.0 <23.0.0"

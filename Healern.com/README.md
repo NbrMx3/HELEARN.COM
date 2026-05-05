@@ -43,6 +43,26 @@ export default defineConfig([
 ])
 ```
 
+## Troubleshooting Extension Console Noise
+
+If you see browser-console errors like `Unchecked runtime.lastError: The message port closed before a response was received`, they typically come from installed browser extensions, not from this app.
+
+To test with a clean browser profile:
+
+1. Start the frontend dev server:
+
+```bash
+npm run dev
+```
+
+2. In a second terminal, open a clean browser window:
+
+```bash
+npm run browser:clean
+```
+
+The helper attempts to launch Chrome/Edge in private mode with extensions disabled, and falls back to your default browser if needed.
+
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
