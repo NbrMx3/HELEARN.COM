@@ -37,6 +37,20 @@ export type MpesaPaymentStatus = {
   registeredPhone?: string | null
 }
 
+export type PayPalOrderResponse = {
+  success: boolean
+  orderId: string
+  message?: string
+}
+
+export type PayPalPaymentStatus = {
+  success: boolean
+  verified: boolean
+  paymentStatus: string | null
+  message: string
+  transactionId?: string | null
+}
+
 const STORAGE_KEY = 'helearn:registered-phone'
 const STORAGE_USER_KEY = 'helearn:registered-user'
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? 'https://helearn-api.onrender.com/api'
@@ -203,6 +217,24 @@ export async function initiateMpesaStkPush(request: MpesaStkPushRequest) {
 
 export async function getMpesaPaymentStatus(registeredPhone: string) {
   return requestJson<MpesaPaymentStatus>(`/mpesa/status/${encodeURIComponent(registeredPhone)}`)
+}
+
+export async function createPayPalOrder(registeredPhone: string) {
+  return requestJson<PayPalOrderResponse>('/paypal/create-order', {
+    method: 'POST',
+    body: JSON.stringify({ registeredPhone, amount: 100 }),
+  })
+}
+
+export async function capturePayPalOrder(registeredPhone: string, orderId: string) {
+  return requestJson<PayPalPaymentStatus>('/paypal/capture-order', {
+    method: 'POST',
+    body: JSON.stringify({ registeredPhone, orderId }),
+  })
+}
+
+export async function getPayPalPaymentStatus(registeredPhone: string) {
+  return requestJson<PayPalPaymentStatus>(`/paypal/status/${encodeURIComponent(registeredPhone)}`)
 }
 
 export function clearRegisteredUser() {

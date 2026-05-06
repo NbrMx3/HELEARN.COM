@@ -8,12 +8,28 @@ import equityLogo from '../assets/equity_logo.svg'
 import logoIcon from '../assets/helearn_logo_icon.svg'
 import mpesaLogo from '../assets/mpesa_logo.svg'
 import {
+  capturePayPalOrder,
   clearRegisteredUser,
+  createPayPalOrder,
   getMpesaPaymentStatus,
   getRegisteredUser,
   initiateMpesaStkPush,
   type RegisteredUser,
 } from '../lib/storage'
+
+declare global {
+  interface Window {
+    paypal?: {
+      Buttons: (config: {
+        createOrder: () => Promise<string>
+        onApprove: () => Promise<void>
+        onError: (error: unknown) => void
+      }) => {
+        render: (selector: string) => Promise<void>
+      }
+    }
+  }
+}
 
 const PAYMENT_RECEIVER_NUMBER = '0112267013'
 const DEFAULT_COUNTRY_CODE = '+254'
@@ -42,6 +58,8 @@ export function Verify() {
   const [verifying, setVerifying] = useState(false)
   const [paymentMessage, setPaymentMessage] = useState('')
   const [paymentError, setPaymentError] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'paypal'>('mpesa')
+  const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null)
 
   function isValidPhoneNumber(value: string) {
     const digits = value.replace(/\D/g, '')
@@ -69,6 +87,61 @@ export function Verify() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    if (paymentMethod !== 'paypal' || !registeredUser || !window.paypal) {
+      return
+    }
+
+    const container = document.getElementById('paypal-button-container')
+    if (!container) {
+      return
+    }
+
+    void window.paypal.Buttons({
+      createOrder: async () => {
+        try {
+          setPaymentError('')
+          const response = await createPayPalOrder(registeredUser.phone)
+          if (!response.success || !response.orderId) {
+            throw new Error(response.message || 'Failed to create PayPal order')
+          }
+          setPaypalOrderId(response.orderId)
+          return response.orderId
+        } catch (error) {
+          setPaymentError(error instanceof Error ? error.message : 'Failed to create PayPal order')
+          throw error
+        }
+      },
+      onApprove: async () => {
+        if (!paypalOrderId) {
+          setPaymentError('Order ID not found. Please try again.')
+          return
+        }
+
+        try {
+          setSubmitting(true)
+          setPaymentError('')
+          const status = await capturePayPalOrder(registeredUser.phone, paypalOrderId)
+
+          if (status.verified) {
+            setVerified(true)
+            setTimeout(() => navigate('/'), 0)
+          } else {
+            setPaymentMessage(status.message || 'Payment captured. Verifying...')
+          }
+        } catch (error) {
+          setPaymentError(error instanceof Error ? error.message : 'Failed to capture payment')
+        } finally {
+          setSubmitting(false)
+        }
+      },
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'PayPal payment failed'
+        setPaymentError(message)
+      },
+    }).render('#paypal-button-container')
+  }, [paymentMethod, registeredUser, paypalOrderId, navigate])
 
   if (loading) {
     return (
@@ -187,81 +260,157 @@ export function Verify() {
 
           <form onSubmit={handleSubmit} className="grid gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[minmax(240px,0.9fr)_minmax(0,1.1fr)]">
             <div className="space-y-3 lg:self-start">
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-4 text-emerald-700">
-                <p className="text-[12px] font-semibold uppercase text-emerald-600">Verification fee</p>
-                <p className="mt-1 text-4xl font-extrabold leading-none text-slate-900 sm:text-[42px]">Ksh{VERIFICATION_AMOUNT}.00</p>
-                <p className="mt-2 text-sm text-slate-500">One-time payment - Instant activation</p>
-                <p className="mt-3 wrap-break-word text-[12px] font-semibold text-emerald-700">
-                  Pay to: {PAYMENT_RECEIVER_NUMBER}
-                </p>
-                <div className="mt-3 flex items-center gap-3 rounded-lg border border-emerald-300 bg-white/90 p-2">
-                  <img src={mpesaLogo} alt="M-PESA" className="h-14 w-14 shrink-0 rounded-full" />
-                  <p className="text-[33px] font-black leading-[1.05] tracking-tight text-emerald-800">
-                    Send money directly to {paymentReceiverMsisdn}
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-red-100 bg-white px-4 py-3 shadow-sm">
-                <div className="flex min-w-0 items-center gap-3">
-                  <img src={equityLogo} alt="Equity" className="h-12 w-24 shrink-0 object-contain" />
-                  <div className="min-w-0">
-                    <p className="text-[12px] font-semibold uppercase text-red-700">Equity account</p>
-                    <p className="text-sm font-semibold leading-5 text-slate-800">Pay Ksh100.00 to {PAYMENT_RECEIVER_NUMBER}</p>
-                    <p className="text-xs font-semibold leading-5 text-red-700">Send money directly to {paymentReceiverMsisdn}</p>
+              {paymentMethod === 'mpesa' && (
+                <>
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-4 text-emerald-700">
+                    <p className="text-[12px] font-semibold uppercase text-emerald-600">Verification fee</p>
+                    <p className="mt-1 text-4xl font-extrabold leading-none text-slate-900 sm:text-[42px]">Ksh{VERIFICATION_AMOUNT}.00</p>
+                    <p className="mt-2 text-sm text-slate-500">One-time payment - Instant activation</p>
+                    <p className="mt-3 wrap-break-word text-[12px] font-semibold text-emerald-700">
+                      Pay to: {PAYMENT_RECEIVER_NUMBER}
+                    </p>
+                    <div className="mt-3 flex items-center gap-3 rounded-lg border border-emerald-300 bg-white/90 p-2">
+                      <img src={mpesaLogo} alt="M-PESA" className="h-14 w-14 shrink-0 rounded-full" />
+                      <p className="text-[33px] font-black leading-[1.05] tracking-tight text-emerald-800">
+                        Send money directly to {paymentReceiverMsisdn}
+                      </p>
+                    </div>
                   </div>
+
+                  <div className="rounded-lg border border-red-100 bg-white px-4 py-3 shadow-sm">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <img src={equityLogo} alt="Equity" className="h-12 w-24 shrink-0 object-contain" />
+                      <div className="min-w-0">
+                        <p className="text-[12px] font-semibold uppercase text-red-700">Equity account</p>
+                        <p className="text-sm font-semibold leading-5 text-slate-800">Pay Ksh100.00 to {PAYMENT_RECEIVER_NUMBER}</p>
+                        <p className="text-xs font-semibold leading-5 text-red-700">Send money directly to {paymentReceiverMsisdn}</p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {paymentMethod === 'paypal' && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-4 text-blue-700">
+                  <p className="text-[12px] font-semibold uppercase text-blue-600">Verification fee</p>
+                  <p className="mt-1 text-4xl font-extrabold leading-none text-slate-900 sm:text-[42px]">$1.35</p>
+                  <p className="mt-2 text-sm text-slate-500">One-time payment - Instant activation</p>
+                  <p className="mt-3 text-sm">Pay securely using PayPal. Your payment will be processed immediately upon approval.</p>
                 </div>
-              </div>
+              )}
             </div>
 
             <div className="min-w-0 space-y-4">
-              <InputField
-                label="M-PESA Phone Number"
-                inputProps={{
-                  value: phoneNumber,
-                  onChange: (event) => setPhoneNumber(event.target.value),
-                  placeholder: '0712 345 678',
-                }}
-                icon={<Smartphone size={16} />}
-              />
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <p className="mb-3 text-sm font-semibold text-slate-700">Choose payment method:</p>
+                <div className="space-y-3">
+                  <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-slate-200 px-4 py-3 transition-colors hover:border-blue-400"
+                    style={{borderColor: paymentMethod === 'mpesa' ? '#3b82f6' : '#e2e8f0'}}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="mpesa"
+                      checked={paymentMethod === 'mpesa'}
+                      onChange={() => {
+                        setPaymentMethod('mpesa')
+                        setPaymentError('')
+                        setPaymentMessage('')
+                        setPromptSent(false)
+                      }}
+                      className="h-4 w-4"
+                    />
+                    <span className="font-semibold text-slate-900">M-PESA (Ksh)</span>
+                  </label>
 
-              <div className="space-y-1 text-center text-[12px] leading-5">
-                <p className="text-slate-400">Accepts: 07XX... - 254XX... - +254X...</p>
-                <p className="font-medium text-slate-500">
-                  M-PESA prompt will be sent to {phoneNumber || 'your number'} and paid to {PAYMENT_RECEIVER_NUMBER}
-                </p>
+                  <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-slate-200 px-4 py-3 transition-colors hover:border-blue-400"
+                    style={{borderColor: paymentMethod === 'paypal' ? '#3b82f6' : '#e2e8f0'}}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="paypal"
+                      checked={paymentMethod === 'paypal'}
+                      onChange={() => {
+                        setPaymentMethod('paypal')
+                        setPaymentError('')
+                        setPaymentMessage('')
+                        setPromptSent(false)
+                      }}
+                      className="h-4 w-4"
+                    />
+                    <span className="font-semibold text-slate-900">PayPal (USD)</span>
+                  </label>
+                </div>
               </div>
 
-              {paymentMessage ? (
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                  {paymentMessage}
-                </div>
-              ) : null}
+              {paymentMethod === 'mpesa' && (
+                <>
+                  <InputField
+                    label="M-PESA Phone Number"
+                    inputProps={{
+                      value: phoneNumber,
+                      onChange: (event) => setPhoneNumber(event.target.value),
+                      placeholder: '0712 345 678',
+                    }}
+                    icon={<Smartphone size={16} />}
+                  />
 
-              {paymentError ? (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {paymentError}
-                </div>
-              ) : null}
+                  <div className="space-y-1 text-center text-[12px] leading-5">
+                    <p className="text-slate-400">Accepts: 07XX... - 254XX... - +254X...</p>
+                    <p className="font-medium text-slate-500">
+                      M-PESA prompt will be sent to {phoneNumber || 'your number'} and paid to {PAYMENT_RECEIVER_NUMBER}
+                    </p>
+                  </div>
 
-              {promptSent ? (
-                <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-                  <p className="font-semibold">Check your phone for the M-PESA prompt</p>
-                  <p className="mt-1 leading-6 text-blue-700">
-                    Authorize the transaction by entering your M-PESA PIN on the popup message.
-                  </p>
-                  <Button type="button" className="mt-3 w-full" onClick={handleAuthorizationComplete} disabled={verifying}>
-                    {verifying ? 'Checking payment status...' : 'I have authorized payment'}
+                  {paymentMessage ? (
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                      {paymentMessage}
+                    </div>
+                  ) : null}
+
+                  {paymentError ? (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                      {paymentError}
+                    </div>
+                  ) : null}
+
+                  {promptSent ? (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                      <p className="font-semibold">Check your phone for the M-PESA prompt</p>
+                      <p className="mt-1 leading-6 text-blue-700">
+                        Authorize the transaction by entering your M-PESA PIN on the popup message.
+                      </p>
+                      <Button type="button" className="mt-3 w-full" onClick={handleAuthorizationComplete} disabled={verifying}>
+                        {verifying ? 'Checking payment status...' : 'I have authorized payment'}
+                      </Button>
+                    </div>
+                  ) : null}
+
+                  <Button type="submit" className="w-full" disabled={submitting}>
+                    <span className="inline-flex min-w-0 items-center justify-center gap-2">
+                      <LockKeyhole size={16} className="shrink-0" />
+                      {submitting ? 'Sending M-PESA Prompt...' : `Pay Ksh${VERIFICATION_AMOUNT}.00 and Send Prompt`}
+                    </span>
                   </Button>
-                </div>
-              ) : null}
+                </>
+              )}
 
-              <Button type="submit" className="w-full" disabled={submitting}>
-                <span className="inline-flex min-w-0 items-center justify-center gap-2">
-                  <LockKeyhole size={16} className="shrink-0" />
-                  {submitting ? 'Sending M-PESA Prompt...' : `Pay Ksh${VERIFICATION_AMOUNT}.00 and Send Prompt`}
-                </span>
-              </Button>
+              {paymentMethod === 'paypal' && (
+                <>
+                  {paymentError ? (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                      {paymentError}
+                    </div>
+                  ) : null}
+
+                  {paymentMessage ? (
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                      {paymentMessage}
+                    </div>
+                  ) : null}
+
+                  <div id="paypal-button-container" className="mt-4"></div>
+                </>
+              )}
 
               <button
                 type="button"

@@ -65,6 +65,20 @@ async function initializeDatabase() {
 			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 		)
 	`)
+
+	await pool.query(`
+		CREATE TABLE IF NOT EXISTS paypal_transactions (
+			id BIGSERIAL PRIMARY KEY,
+			registered_phone TEXT NOT NULL,
+			order_id TEXT UNIQUE NOT NULL,
+			transaction_id TEXT,
+			amount NUMERIC(10, 2) NOT NULL,
+			status TEXT NOT NULL DEFAULT 'CREATED',
+			verified_at TIMESTAMPTZ,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+		)
+	`)
 }
 
 function normalizePhoneNumber(phoneNumber) {
@@ -517,6 +531,165 @@ app.patch('/api/users/:phone/verify', async (req, res) => {
 		res.json(mapRegisteredUser(result.rows[0]))
 	} catch (error) {
 		sendDatabaseError(res, error)
+	}
+})
+
+const PAYPAL_MODE = process.env.PAYPAL_MODE || 'sandbox'
+const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID || ''
+const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET || ''
+const PAYPAL_API_BASE = PAYPAL_MODE === 'live' 
+	? 'https://api.paypal.com'
+	: 'https://api.sandbox.paypal.com'
+
+async function getPayPalAccessToken() {
+	try {
+		const credentials = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString('base64')
+		const response = await axios.post(`${PAYPAL_API_BASE}/v1/oauth2/token`, 'grant_type=client_credentials', {
+			headers: {
+				Authorization: `Basic ${credentials}`,
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+		})
+		return response.data.access_token
+	} catch (error) {
+		console.error('PayPal access token error:', error.response?.data || error.message)
+		throw error
+	}
+}
+
+app.post('/api/paypal/create-order', async (req, res) => {
+	const { registeredPhone, amount } = req.body ?? {}
+
+	if (!registeredPhone || amount === undefined) {
+		return res.status(400).json({ error: 'Missing registeredPhone or amount' })
+	}
+
+	try {
+		const accessToken = await getPayPalAccessToken()
+		
+		const orderPayload = {
+			intent: 'CAPTURE',
+			purchase_units: [{
+				amount: {
+					currency_code: 'USD',
+					value: '1.35',
+				},
+			}],
+		}
+
+		const response = await axios.post(`${PAYPAL_API_BASE}/v2/checkout/orders`, orderPayload, {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
+		})
+
+		const orderId = response.data.id
+
+		await pool.query(
+			`INSERT INTO paypal_transactions (registered_phone, order_id, amount, status)
+			 VALUES ($1, $2, $3, 'CREATED')
+			 ON CONFLICT (order_id) DO UPDATE SET updated_at = NOW()`,
+			[registeredPhone, orderId, amount],
+		)
+
+		return res.json({ success: true, orderId, message: 'PayPal order created successfully' })
+	} catch (error) {
+		console.error('PayPal create order error:', error.response?.data || error.message)
+		return res.status(502).json({ 
+			error: error.response?.data?.message || 'Failed to create PayPal order'
+		})
+	}
+})
+
+app.post('/api/paypal/capture-order', async (req, res) => {
+	const { registeredPhone, orderId } = req.body ?? {}
+
+	if (!registeredPhone || !orderId) {
+		return res.status(400).json({ error: 'Missing registeredPhone or orderId' })
+	}
+
+	try {
+		const accessToken = await getPayPalAccessToken()
+
+		const response = await axios.post(
+			`${PAYPAL_API_BASE}/v2/checkout/orders/${orderId}/capture`,
+			{},
+			{
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+				},
+			},
+		)
+
+		const captureStatus = response.data.status
+		const isSuccess = captureStatus === 'COMPLETED'
+		const transactionId = response.data.purchase_units?.[0]?.payments?.captures?.[0]?.id
+
+		await pool.query(
+			`UPDATE paypal_transactions
+			 SET status = $2, transaction_id = $3, verified_at = CASE WHEN $2 = 'COMPLETED' THEN NOW() ELSE verified_at END, updated_at = NOW()
+			 WHERE order_id = $1`,
+			[orderId, captureStatus, transactionId],
+		)
+
+		if (isSuccess) {
+			await markRegisteredUserVerified(registeredPhone)
+		}
+
+		return res.json({
+			success: isSuccess,
+			verified: isSuccess,
+			paymentStatus: captureStatus,
+			transactionId,
+			message: isSuccess ? 'Payment captured successfully' : 'Payment capture failed',
+		})
+	} catch (error) {
+		console.error('PayPal capture error:', error.response?.data || error.message)
+		return res.status(502).json({
+			success: false,
+			error: error.response?.data?.message || 'Failed to capture PayPal order',
+		})
+	}
+})
+
+app.get('/api/paypal/status/:registeredPhone', async (req, res) => {
+	const { registeredPhone } = req.params
+
+	try {
+		const result = await pool.query(
+			`SELECT status, transaction_id, verified_at FROM paypal_transactions
+			 WHERE registered_phone = $1
+			 ORDER BY created_at DESC
+			 LIMIT 1`,
+			[registeredPhone],
+		)
+
+		if (result.rowCount === 0) {
+			return res.status(404).json({ error: 'No PayPal payment found' })
+		}
+
+		const payment = result.rows[0]
+		const isVerified = payment.verified_at !== null
+		const statusMap = {
+			CREATED: 'Payment pending',
+			APPROVED: 'Payment approved by user',
+			COMPLETED: 'Payment captured successfully',
+			CANCELLED: 'Payment cancelled',
+			FAILED: 'Payment failed',
+		}
+
+		return res.json({
+			success: true,
+			verified: isVerified,
+			paymentStatus: payment.status,
+			transactionId: payment.transaction_id,
+			message: statusMap[payment.status] || 'Payment processing',
+		})
+	} catch (error) {
+		console.error('PayPal status error:', error)
+		return res.status(500).json({ error: 'Unable to fetch PayPal payment status' })
 	}
 })
 
