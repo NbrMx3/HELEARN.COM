@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Eye, EyeOff, Globe, IdCard, Lock, Mail, Smartphone, User, Users } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { InputField } from '../components/InputField'
@@ -216,9 +216,9 @@ export function Register() {
 
             <div className="flex flex-col gap-2 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between md:col-span-2">
               <span className="text-black font-medium">(c) 2026 HELEAARN AGENCY</span>
-              <a href="/verify" className="font-medium text-black hover:text-blue-700">
+              <Link to="/verify" className="font-medium text-black hover:text-blue-700 transition-colors duration-200">
                 Have an account? Sign In -&gt;
-              </a>
+              </Link>
             </div>
           </form>
         </Card>
