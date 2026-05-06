@@ -215,7 +215,7 @@ export function Register() {
             ) : null}
 
             <div className="flex flex-col gap-2 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between md:col-span-2">
-              <span>(c) 2026 HELEAARN AGENCY</span>
+              <span className="text-black font-medium">(c) 2026 HELEAARN AGENCY</span>
               <a href="/verify" className="font-medium text-slate-500 hover:text-blue-700">
                 Have an account? Sign In -&gt;
               </a>
