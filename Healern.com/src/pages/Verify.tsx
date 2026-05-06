@@ -7,6 +7,7 @@ import { InputField } from '../components/InputField'
 import equityLogo from '../assets/equity_logo.svg'
 import logoIcon from '../assets/helearn_logo_icon.svg'
 import mpesaLogo from '../assets/mpesa_logo.svg'
+import paypalLogo from '../assets/paypal_logo.svg'
 import {
   capturePayPalOrder,
   clearRegisteredUser,
@@ -295,7 +296,10 @@ export function Verify() {
                   <p className="text-[12px] font-semibold uppercase text-blue-600">Verification fee</p>
                   <p className="mt-1 text-4xl font-extrabold leading-none text-slate-900 sm:text-[42px]">$1.35</p>
                   <p className="mt-2 text-sm text-slate-500">One-time payment - Instant activation</p>
-                  <p className="mt-3 text-sm">Pay securely using PayPal. Your payment will be processed immediately upon approval.</p>
+                  <div className="mt-3 flex items-center gap-3 rounded-lg border border-blue-300 bg-white/90 p-2">
+                    <img src={paypalLogo} alt="PayPal" className="h-12 w-28 shrink-0 object-contain rounded" />
+                    <p className="text-sm font-semibold leading-tight text-blue-700">Secure payment powered by PayPal</p>
+                  </div>
                 </div>
               )}
             </div>
