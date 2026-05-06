@@ -53,7 +53,7 @@ export function Home() {
 
           <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4 text-slate-700 shadow-sm">
             <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-blue-700">About</p>
-            <p className="mt-2 text-sm leading-7 text-slate-600">
+            <p className="mt-2 text-sm leading-7 text-purple-700">
               Helearn is an online platform where qualified tutors teach Swahili to foreigners worldwide - and get paid for it.
               Learn from native speakers. Earn from your language skills. All in one place.
             </p>
