@@ -24,7 +24,7 @@ export function Home() {
             </div>
 
             <h1 className="mt-8 max-w-lg text-4xl font-bold leading-tight text-slate-950">
-              Create your account and activate your <span className="text-blue-900">HELAEARN</span> membership.
+              Create your account and activate your <span className="text-blue-900 hover:text-blue-600 transition-colors duration-200 cursor-pointer">HELAEARN</span> membership.
             </h1>
             <p className="mt-4 max-w-lg text-[28px] leading-9 text-purple-700">
               Join through your invitation, complete verification, and continue to your member area.
